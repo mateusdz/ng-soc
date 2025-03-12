@@ -1,0 +1,61 @@
+{
+    "$id": "https://raw.githubusercontent.com/cyentific-rni/workflow-status/main/schema/execution-status.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "execution-status",
+    "description": "JSON validation schema for tracking the execution of CACAO playbooks.",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["execution-status"],
+            "description": "This property identifies the semantic type of the object. The value of this property is a string and MUST be 'execution-status'."
+        },
+        "execution_id": {
+            "type": "string",
+            "description": "A identifier that uniquely identifies the execution of this object."
+        },
+        "playbook_id": {
+            "$ref": "https://raw.githubusercontent.com/cyentific-rni/cacao-json-schemas/cacao-v2.0-csd01/schemas/data-types/identifier.json",
+            "description": "A identifier that uniquely identifies this playbook."
+        },
+        "started": {
+            "$ref": "https://raw.githubusercontent.com/cyentific-rni/cacao-json-schemas/cacao-v2.0-csd01/schemas/data-types/timestamp.json",
+            "description": "A timestamp that identifies the time the step execution started."
+        },
+        "ended": {
+            "$ref": "https://raw.githubusercontent.com/cyentific-rni/cacao-json-schemas/cacao-v2.0-csd01/schemas/data-types/timestamp.json",
+            "description": "A timestamp that identifies the time the step execution ended."
+        },
+        "status": {
+            "$ref": "#/$defs/execution-status-enum",
+            "description": "This property identifies the execution status of the workflow step. The value of this property SHOULD come from the execution-status-enum enumeration."
+        },
+        "status_text": {
+            "type": "string",
+            "description": "A description that provides more details pertinent to the execution status of the workflow step."
+        },
+        "step_results": {
+            "type": "array",
+            "items": {
+                "ref": "./workflow-status.json"
+            },
+            "description": "An array of objects that represent the results of the workflow step execution."
+        }
+    },
+    "$defs": {
+        "execution-status-enum": {
+            "type": "string",
+            "enum": [
+                "successfully_executed",
+                "failed",
+                "ongoing",
+                "await_user_input",
+                "server_side_error",
+                "client_side_error",
+                "timeout_error",
+                "exception_condition_invoked"
+            ]
+        }
+    },
+    "required": ["type"]
+}

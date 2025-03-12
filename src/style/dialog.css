@@ -1,0 +1,403 @@
+.cacaoDialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+
+  max-width: 350px;
+  width: 100%;
+  max-height: 70%;
+  padding: 0px;
+
+  font-family: poppins, sans-serif;
+  color: black;
+
+  background: rgba(243, 243, 243, 1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(214, 214, 214, 0.83);
+}
+
+.cacaoDialog--scrollable {
+  overflow-y: auto;
+  flex-grow: 1;
+  height: 100%;
+  padding: 10px 10px 100px 10px;
+}
+
+.cacaoDialog__title {
+  padding: 15px 20px;
+  font-family: sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.cacaoDialog__body {
+  position: relative;
+  overflow: visible;
+}
+
+.cacaoDialog__errormessage {
+  color: red;
+  font-size: 10px;
+  flex-grow: 1;
+}
+
+.cacaoDialog__description {
+  padding: 10px 20px 20px 20px;
+  font-family: sans-serif;
+  font-weight: 200;
+  font-size: 15px;
+  line-height: 25px;
+}
+
+.cacaoDialog__buttonList {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  align-items: flex-end;
+  padding: 0 10px 10px 10px;
+  margin-top: 10px;
+}
+
+.buttonList__button {
+  border-radius: 5px;
+  padding: 5px 10px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.button--primary {
+  background: var(--select);
+  border: 0;
+}
+
+.button--secondary {
+  background: transparent;
+  border: 0;
+  color: black;
+}
+
+.cacaoDialog__message {
+  font-size: 15px;
+  margin: 10px;
+  text-align: center;
+  font-weight: 200;
+}
+
+.cacaoDialog__labels > .property--simple {
+  display: flex;
+}
+
+.cacaoDialog__labels > .property--simple label {
+  text-transform: initial;
+}
+
+/* User dialog */
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+
+  max-width: 800px;
+  width: 90%;
+  max-height: 70%;
+  padding: 0px;
+
+  font-family: Poppins;
+  color: white;
+
+  background: rgb(43, 44, 63);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgb(115, 117, 154);
+}
+
+.integration {
+  max-width: 600px;
+  width: 90%;
+  max-height: 70%;
+  align-items: stretch;
+}
+
+.dialog__title {
+  padding: 10px 15px;
+  letter-spacing: 2px;
+  font-family: Poppins;
+  font-weight: 500;
+  font-size: 25px;
+  font-weight: 700;
+}
+
+.dialog__property {
+  margin-bottom: 10px;
+  padding: 0px 5px;
+  width: calc(100% - 10px);
+}
+
+.dialog__property > .property__label {
+  margin-left: 5px;
+  font-size: 12px;
+  font-weight: 300;
+}
+
+.dialog__property > input {
+  height: 30px;
+  resize: vertical;
+}
+
+.dialog__property > .radioButton {
+  height: auto;
+  margin-right: 5px;
+}
+
+.dialog__property > textarea {
+  min-height: 18px;
+  height: 130px;
+  resize: vertical;
+}
+
+.dialog__property > .property__input {
+  padding: 0px 5px;
+  width: calc(100% - 12px);
+  font-size: 13px;
+  font-weight: 200;
+  color: white;
+
+  background: rgb(60, 61, 92);
+  border-radius: 7px;
+  border: 1px solid rgba(34, 36, 81, 0.84);
+}
+
+.dialog__property > .cacaoImportTextarea {
+  min-height: 200px;
+  height: 400px;
+  resize: vertical;
+  padding: 5px;
+}
+
+.cacaoImportTextarea::placeholder {
+  color: lightgray;
+}
+
+.radioButtonLabelContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 5px;
+  align-items: baseline;
+}
+
+.dialog__property > input.input--incorrect {
+  border: 1px solid rgba(255, 0, 0, 0.601);
+}
+
+.dialog__buttonList {
+  display: flex;
+  justify-content: flex-end;
+  flex-direction: row;
+  padding: 10px;
+}
+
+.dialog__buttonList > button {
+  padding: 5px;
+  margin-left: 10px;
+  border-radius: 5px;
+  max-width: 140px;
+  color: white;
+  box-sizing: border-box;
+}
+
+.dialog__buttonList > button:hover {
+  padding: 4px;
+  border-radius: 5px;
+  border: 1px solid blueviolet;
+  cursor: pointer;
+}
+
+.dialog__buttonList > button.button--primary {
+  color: black;
+}
+
+.keyPair__button-wrapper {
+  display: flex;
+  justify-content: flex-end;
+
+  color: white;
+  background-color: none;
+}
+
+.keyPair__button-wrapper > Button {
+  color: white;
+  padding: 10px;
+  background-color: none;
+}
+
+.keyPair__button-wrapper > Button:hover {
+  border: 1px solid white;
+  padding: 9px;
+  cursor: pointer;
+}
+
+.keyPair__button-wrapper > Button:focus {
+  border: 1px solid white;
+  padding: 9px;
+}
+
+.error_message-div {
+  display: flex;
+  align-items: center;
+}
+
+.error_message {
+  color: red;
+  font-size: 11px;
+  padding: 0px 5px;
+  max-width: 56ch;
+  align-content: space-around;
+}
+
+.integration-info {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  background-color: rgb(60, 61, 92);
+  margin: 7px;
+  border-radius: 7px;
+}
+
+.flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Styling for the dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top:60px;
+  left: 0px;
+  background-color: #f1f1f1;
+  width: fit-content;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 101;
+}
+
+/* Links inside the dropdown */
+.dropdown-content div {
+  display: flex;
+  align-items: center;
+  min-width: max-content;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  color: rgb(255, 255, 255);
+  padding: 12px 16px;
+  background-color: var(--header-background); 
+  > p {
+    margin-left: 8px;
+  }
+}
+
+#export_stix-2-1-icon {
+  --svg: url('../assets/icons/export_json-icon.svg');
+} 
+
+#export_cacao-json-icon {
+  --svg: url('../assets/icons/export_json-icon.svg');
+}
+
+#export_svg-icon {
+  --svg: url('../assets/icons/export_svg-icon.svg');
+}
+
+#integration_soarca-icon {
+  --svg: url('../assets/icons/integration_soarca-icon.png');
+  background-image: var(--svg);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: var(--header-text);
+  height: 50px;
+  padding-bottom: 5px;
+}
+
+.dropdown-item-icon {
+  -webkit-mask: var(--svg);
+  mask: var(--svg);
+  margin: 0 5px;
+  width: 40px;
+  height: 40px;
+  display: block;
+
+  background-color: var(--header-text);
+
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  mask-position: center;
+}
+
+
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+.dropdown-content div:hover {
+  background-color: var(--header-button-background);
+  color: var(--select);
+  cursor: pointer;
+  > .dropdown-item-icon {
+    background-color: var(--select);
+  }
+}
+
+.hidden {
+  display: none;
+}
+
+.ping_status_icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border-width: 1px;
+  display: none;
+  align-self: center;
+  margin-right: 8px;
+  margin-left: 8px;
+}
+
+.ping_status_icon--success {
+  display: inline-block;
+  background-color: green;
+  border-color: rgb(0, 104, 0);
+}
+
+.ping_status_icon--error {
+  display: inline-block;
+  background-color: red;
+  border-color: rgb(199, 0, 0);
+}
+
+.ping_status_text {
+  width: fit-content;
+}
+
+.messagePingContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.error_message-div {
+  height: 33px;
+}
