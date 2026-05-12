@@ -2,9 +2,15 @@ import type { PlaybookCard } from "../types/playbook";
 
 export type PlaybookFilters = {
   query: string;
+  searchMode: "contains" | "exact";
   view: string;
   author: string;
   playbookType: string;
+  label: string;
+  validationStatus: string;
+  manualStep: string;
+  modifiedFrom: string;
+  modifiedTo: string;
 };
 
 export const savedViews = [
@@ -24,10 +30,45 @@ function searchableText(playbook: PlaybookCard) {
     playbook.playbookType,
     playbook.labels.join(" "),
     playbook.modifiedAt,
+    playbook.createdAt,
+    playbook.versionLabel,
     JSON.stringify(playbook.rawCacao)
   ]
     .join(" ")
     .toLowerCase();
+}
+
+function exactFields(playbook: PlaybookCard) {
+  return [
+    playbook.id,
+    playbook.cacaoId,
+    playbook.title,
+    playbook.description,
+    playbook.summary,
+    playbook.author,
+    playbook.playbookType,
+    playbook.modifiedAt,
+    playbook.versionLabel,
+    ...playbook.labels
+  ]
+    .filter((value): value is string => Boolean(value))
+    .map((value) => value.toLowerCase());
+}
+
+function isOnOrAfter(value: string | undefined, boundary: string) {
+  if (!value || !boundary) {
+    return true;
+  }
+
+  return value.slice(0, 10) >= boundary;
+}
+
+function isOnOrBefore(value: string | undefined, boundary: string) {
+  if (!value || !boundary) {
+    return true;
+  }
+
+  return value.slice(0, 10) <= boundary;
 }
 
 export function filterPlaybooks(playbooks: PlaybookCard[], filters: PlaybookFilters) {
@@ -43,9 +84,32 @@ export function filterPlaybooks(playbooks: PlaybookCard[], filters: PlaybookFilt
 
     const matchesAuthor = !filters.author || playbook.author === filters.author;
     const matchesType = !filters.playbookType || playbook.playbookType === filters.playbookType;
-    const matchesQuery = !normalizedQuery || searchableText(playbook).includes(normalizedQuery);
+    const matchesLabel = !filters.label || playbook.labels.includes(filters.label);
+    const matchesValidation =
+      !filters.validationStatus || playbook.cacaoValidationStatus === filters.validationStatus;
+    const matchesManual =
+      !filters.manualStep ||
+      (filters.manualStep === "yes" && playbook.hasManualSteps) ||
+      (filters.manualStep === "no" && !playbook.hasManualSteps);
+    const matchesModifiedFrom = isOnOrAfter(playbook.modifiedAt, filters.modifiedFrom);
+    const matchesModifiedTo = isOnOrBefore(playbook.modifiedAt, filters.modifiedTo);
+    const matchesQuery =
+      !normalizedQuery ||
+      (filters.searchMode === "exact"
+        ? exactFields(playbook).includes(normalizedQuery)
+        : searchableText(playbook).includes(normalizedQuery));
 
-    return matchesView && matchesAuthor && matchesType && matchesQuery;
+    return (
+      matchesView &&
+      matchesAuthor &&
+      matchesType &&
+      matchesLabel &&
+      matchesValidation &&
+      matchesManual &&
+      matchesModifiedFrom &&
+      matchesModifiedTo &&
+      matchesQuery
+    );
   });
 
   if (filters.view === "Recently modified") {

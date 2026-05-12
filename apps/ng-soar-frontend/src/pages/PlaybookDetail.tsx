@@ -1,9 +1,11 @@
-import { ArrowLeft, ExternalLink } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, ExternalLink, Eye } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { StatusPill } from "../components/playbooks/StatusPill";
+import { WorkflowPreview } from "../components/playbooks/WorkflowPreview";
 import { env } from "../config/env";
 import { formatDateTime, humanizeStatus } from "../services/format";
+import { buildPlaybookGraph } from "../services/playbookGraph";
 import { loadPlaybook } from "../services/playbookRepository";
 import type { PlaybookCard } from "../types/playbook";
 
@@ -37,6 +39,8 @@ export default function PlaybookDetail() {
       isCurrent = false;
     };
   }, [playbookId]);
+
+  const workflowGraph = useMemo(() => buildPlaybookGraph(playbook?.rawCacao), [playbook?.rawCacao]);
 
   if (isLoading) {
     return (
@@ -83,18 +87,27 @@ export default function PlaybookDetail() {
               ))}
             </div>
           </div>
-          <Link
-            to={roasterUrl}
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-signal px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800"
-          >
-            Open in Roaster
-            <ExternalLink size={16} aria-hidden="true" />
-          </Link>
+          <div className="flex flex-wrap gap-2">
+            <a
+              href="#workflow-preview"
+              className="inline-flex items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              Preview
+              <Eye size={16} aria-hidden="true" />
+            </a>
+            <Link
+              to={roasterUrl}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-signal px-4 py-2.5 text-sm font-semibold text-white hover:bg-cyan-800"
+            >
+              Open in Roaster
+              <ExternalLink size={16} aria-hidden="true" />
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-panel">
+      <section className="grid gap-5 xl:grid-cols-[380px_minmax(0,1fr)]">
+        <div id="workflow-preview" className="scroll-mt-6 rounded-lg border border-slate-200 bg-white p-6 shadow-panel">
           <h2 className="text-lg font-semibold">Metadata</h2>
           <dl className="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
@@ -137,18 +150,17 @@ export default function PlaybookDetail() {
         </div>
 
         <div className="rounded-lg border border-slate-200 bg-white p-6 shadow-panel">
-          <h2 className="text-lg font-semibold">Preview</h2>
-          <div className="mt-4 grid gap-3">
-            {["Start", "Collect evidence", playbook.hasManualSteps ? "Manual checkpoint" : "Automated decision", "Finish"].map(
-              (step, index, steps) => (
-                <div key={step}>
-                  <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium">
-                    {step}
-                  </div>
-                  {index < steps.length - 1 ? <div className="mx-auto h-5 w-px bg-slate-300" /> : null}
-                </div>
-              )
-            )}
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold">Workflow Preview</h2>
+              <p className="text-sm text-slate-600">Read-only graph generated from the CACAO workflow object.</p>
+            </div>
+            <span className="text-sm text-slate-500">
+              {workflowGraph.nodes.length} nodes / {workflowGraph.edges.length} links
+            </span>
+          </div>
+          <div className="mt-4">
+            <WorkflowPreview nodes={workflowGraph.nodes} edges={workflowGraph.edges} />
           </div>
         </div>
       </section>

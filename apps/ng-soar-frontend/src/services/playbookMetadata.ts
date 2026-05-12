@@ -13,7 +13,19 @@ function arrayOfStrings(value: unknown): string[] {
     return [];
   }
 
-  return value.filter((item): item is string => typeof item === "string" && Boolean(item.trim()));
+  return value
+    .map((item) => {
+      if (typeof item === "string") {
+        return item.trim();
+      }
+
+      if (isRecord(item)) {
+        return firstString(item, ["name", "id", "value"]);
+      }
+
+      return undefined;
+    })
+    .filter((item): item is string => Boolean(item));
 }
 
 function firstString(record: Record<string, unknown>, keys: string[]): string | undefined {
@@ -106,6 +118,7 @@ export function extractPlaybookCard(rawCacao: unknown): PlaybookCard {
   const workflowObjects = extractWorkflowObjects(record);
   const title = firstString(record, ["name", "title", "playbook_name"]) ?? id;
   const playbookTypes = arrayOfStrings(record.playbook_types);
+  const playbookType = playbookTypes[0] ?? firstString(record, ["playbook_type", "category"]);
 
   return {
     id,
@@ -114,7 +127,7 @@ export function extractPlaybookCard(rawCacao: unknown): PlaybookCard {
     description: firstString(record, ["description", "summary"]),
     summary: firstString(record, ["playbook_summary", "summary"]),
     author: extractAuthor(record),
-    playbookType: firstString(record, ["playbook_type", "type"]) ?? playbookTypes[0],
+    playbookType,
     labels: extractLabels(record),
     createdAt: firstString(record, ["created", "created_at"]),
     modifiedAt,
