@@ -27,6 +27,8 @@ services:
       context: ./apps/CACAO-Roaster
     environment:
       SOARCA_URL: ${SOARCA_API_URL:-http://soarca:8080}
+      SOARCA_END_POINT: ${ROASTER_SOARCA_API_BASE:-http://127.0.0.1:8082}
+      SOARCA_PLAYBOOK_API_BASE: ${ROASTER_SOARCA_API_BASE:-http://127.0.0.1:8082}
     ports:
       - "127.0.0.1:${CACAO_ROASTER_PORT:-3000}:3000"
     depends_on:

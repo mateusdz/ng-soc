@@ -6,7 +6,7 @@ WORKDIR /cacao-roaster
 
 COPY package.json package-lock.json .
 
-RUN npm install
+RUN npm install --ignore-scripts
 
 COPY . . 
 

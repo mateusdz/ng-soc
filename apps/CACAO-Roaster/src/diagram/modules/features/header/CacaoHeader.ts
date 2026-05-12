@@ -318,7 +318,14 @@ export default class CacaoHeader {
 			this._cacaoExporter.exportToSVG(),
 		);
 
+		const dropdownItem4 = this._createDropdownItem(
+			'export_cacao-json-icon',
+			'Save SOARCA Version',
+			() => this._cacaoExporter.saveAsNewVersionToSoarca(),
+		);
+
 		// Adding dropdown items to the dropdown content
+		dropdownContent.appendChild(dropdownItem4);
 		dropdownContent.appendChild(dropdownItem2);
 		dropdownContent.appendChild(dropdownItem3);
 		dropdownContent.appendChild(dropdownItem1);

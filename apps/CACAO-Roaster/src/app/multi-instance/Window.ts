@@ -5,6 +5,7 @@ import { newPlaybook } from '../Application';
 import UserSettingsProps from '../UserSettingsProps';
 import cacaoDialog from '../../diagram/modules/core/CacaoDialog';
 import type { ExecutionStatus } from '../../../src/diagram/modules/model/status/status-model/ExecutionStatus';
+import { fetchSoarcaPlaybook } from '../soarcaPlaybooks';
 
 export default class CacaoWindow {
 	private _headerEntry: HTMLElement;
@@ -39,6 +40,24 @@ export default class CacaoWindow {
 	hide() {
 		this._headerEntry.classList.remove('tab-open');
 		this._closeLogWindow();
+	}
+
+	async loadPlaybookFromSoarca(playbookId: string): Promise<void> {
+		this._headerEntryTextElement.innerText = 'Loading playbook...';
+
+		try {
+			const playbookJson = await fetchSoarcaPlaybook(playbookId);
+			if (!isCacaoPlaybook(playbookJson)) {
+				throw new Error('The fetched JSON is not a CACAO playbook');
+			}
+			this.loadEditor(new Playbook(playbookJson));
+		} catch (e: any) {
+			this._headerEntryTextElement.innerText = 'New playbook';
+			cacaoDialog.showAlert(
+				'Error when trying to load the playbook from SOARCA',
+				e.message,
+			);
+		}
 	}
 
 	/* Closes the log window by removing the 'show' class and adding the 'hide' class.

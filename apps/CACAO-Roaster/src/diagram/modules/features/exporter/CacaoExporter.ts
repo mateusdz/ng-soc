@@ -13,6 +13,8 @@ import {
 import { CheckboxInput } from '../side-panel/BasicInputs/CheckboxInput';
 import { LabeledInput } from '../side-panel/LabeledInput';
 import { PanelButton } from '../side-panel/PanelButton';
+import cacaoDialog from '../../core/CacaoDialog';
+import { createSoarcaPlaybook } from '../../../../app/soarcaPlaybooks';
 
 // Constants with text for the different scenarios.
 const COORDINATES_EXTENSION_CONFIRMATION =
@@ -129,6 +131,25 @@ export default class CacaoExporter {
 				`status--${fileName}`,
 				'application/json',
 			);
+		}
+	}
+
+	async saveAsNewVersionToSoarca() {
+		try {
+			this.preparesExportWithCoordinatesOrRemovesThem(true);
+			const versionedPlaybook = this._playbookHandler.createDerivedPlaybook();
+			const jsonObject = CacaoUtils.filterEmptyValues(versionedPlaybook) as Playbook;
+
+			const savedPlaybook = await createSoarcaPlaybook(jsonObject);
+			this._playbookHandler.setPlaybookProperties(savedPlaybook);
+			this._playbookHandler.initialPlaybook = this._playbookHandler.playbook;
+
+			cacaoDialog.showAlert(
+				'Saved playbook version',
+				`Created ${savedPlaybook.id} in SOARCA.`,
+			);
+		} catch (e: any) {
+			cacaoDialog.showAlert('Error when saving playbook version to SOARCA', e.message);
 		}
 	}
 

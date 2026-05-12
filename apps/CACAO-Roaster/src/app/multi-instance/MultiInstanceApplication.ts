@@ -10,7 +10,13 @@ export default class MultiInstanceApplication extends Application {
 	constructor(container: HTMLElement) {
 		super(container);
 		this.init(this._container);
-		this.openWindow(this.newWindow());
+		const initialWindow = this.newWindow();
+		this.openWindow(initialWindow);
+
+		const playbookId = getPlaybookIdFromPath();
+		if (playbookId) {
+			initialWindow.loadPlaybookFromSoarca(playbookId);
+		}
 	}
 
 	set currentWindow(container: HTMLElement) {
@@ -76,4 +82,10 @@ export default class MultiInstanceApplication extends Application {
 		}
 		window.show();
 	}
+}
+
+function getPlaybookIdFromPath(): string | undefined {
+	const match = window.location.pathname.match(/\/playbook\/([^/?#]+)/);
+	if (!match) return undefined;
+	return decodeURIComponent(match[1]);
 }
