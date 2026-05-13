@@ -18,7 +18,7 @@ const navItems = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Playbooks", to: "/playbooks", icon: BookOpen },
   { label: "Roaster", to: env.roasterBase, icon: Flame },
-  { label: "Executions", to: env.soarcaGuiBase, icon: TerminalSquare },
+  { label: "Executions", to: `${env.soarcaGuiBase.replace(/\/$/, "")}/monitoring`, icon: TerminalSquare },
   { label: "Settings", to: "/settings", icon: Settings }
 ];
 

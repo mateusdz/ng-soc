@@ -72,3 +72,11 @@ export async function listExecutions(): Promise<unknown[]> {
 export async function getExecution(id: string): Promise<unknown> {
   return requestJson<unknown>(`/reporter/${encodeURIComponent(id)}`);
 }
+
+export async function listManualTasks(): Promise<unknown[]> {
+  return asArray(await requestJson<unknown>("/manual/"));
+}
+
+export async function getSystemStatus(): Promise<unknown> {
+  return requestJson<unknown>("/status/");
+}

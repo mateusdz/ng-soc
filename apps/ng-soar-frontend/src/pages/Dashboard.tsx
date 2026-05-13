@@ -113,7 +113,7 @@ export default function Dashboard() {
             </a>
             <a
               className="rounded-md border border-slate-200 px-4 py-3 font-medium hover:bg-slate-50"
-              href={env.soarcaGuiBase}
+              href={`${env.soarcaGuiBase.replace(/\/$/, "")}/monitoring`}
             >
               SOARCA-GUI / Execution View
             </a>
