@@ -3,6 +3,7 @@ services:
     image: nginx:1.29-alpine
     depends_on:
       - ng-soar-frontend
+      - ng-soar-api
       - cacao-roaster
       - soarca-gui
       - soarca
@@ -21,6 +22,19 @@ services:
         VITE_SOARCA_GUI_BASE: ${VITE_SOARCA_GUI_BASE:-/executions}
         VITE_ROASTER_EMBED_URL: ${VITE_ROASTER_EMBED_URL:-http://127.0.0.1:3000}
         VITE_SOARCA_GUI_EMBED_URL: ${VITE_SOARCA_GUI_EMBED_URL:-http://127.0.0.1:8081}
+
+  ng-soar-api:
+    build:
+      context: ./apps/ng-soar-api
+    environment:
+      PORT: 3001
+      MONGODB_URI: ${NG_SOAR_MONGODB_URI:-mongodb://root:rootpassword@mongodb:27017/?authSource=admin}
+      MONGODB_DATABASE: ${NG_SOAR_MONGODB_DATABASE:-ng_soar}
+      SOARCA_API_URL: ${SOARCA_API_URL:-http://soarca:8080}
+      SYNC_INTERVAL_MS: ${NG_SOAR_SYNC_INTERVAL_MS:-10000}
+    depends_on:
+      - mongodb
+      - soarca
 
   cacao-roaster:
     build:
