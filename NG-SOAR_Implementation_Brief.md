@@ -209,10 +209,12 @@ Show:
 
 - Total playbooks.
 - Manual-step playbooks.
+- Derived/versioned playbooks.
 - Recently modified playbooks.
 - Recent executions.
 - Last execution status summary.
-- Quick links to Playbooks, Roaster, Monitoring, and Settings.
+- SOARCA runtime status.
+- Quick links to Playbooks, Roaster, and Monitoring.
 
 Keep this robust and modest. Advanced analytics are not required.
 
@@ -518,7 +520,23 @@ Acceptance criteria:
 - User can distinguish playbook versions.
 - Roaster-created edits do not silently destroy prior context.
 
-### Phase 8: Remove Former NG-SOAR Frontend
+### Phase 8: Dashboard Operational Overview
+
+Build:
+
+- Replace the SOARCA-GUI dashboard placeholder with an NG-SOAR dashboard.
+- Show playbook totals, manual playbooks, derived versions, execution summaries, and running/manual-input state.
+- Show recent playbooks and persisted executions.
+- Show SOARCA runtime/version/uptime when available.
+- Add quick actions for playbook creation, Roaster, and monitoring.
+
+Acceptance criteria:
+
+- `/dashboard` is useful as the demo/reviewer landing page.
+- Dashboard data comes from SOARCA-GUI, SOARCA, and NG-SOAR API clients without duplicating old frontend code.
+- Failure of optional execution/status calls does not block access to playbooks.
+
+### Phase 9: Remove Former NG-SOAR Frontend
 
 Build:
 
@@ -532,7 +550,7 @@ Acceptance criteria:
 - Full demo flow works with SOARCA-GUI as the only main frontend.
 - No dead navigation points to the old frontend.
 
-### Phase 9: Documentation and Demo Polish
+### Phase 10: Documentation and Demo Polish
 
 Build:
 

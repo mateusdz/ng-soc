@@ -1,9 +1,9 @@
 import { Navigate, Route, Routes } from "react-router";
 
 import { ToasterSetup } from "./ToasterSetup";
+import { NgSoarDashboardPage } from "./ng-soar/dashboard/DashboardPage";
 import { LoginPage } from "./pages/LoginPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { MainPage } from "./pages/main-page/MainPage";
 import { SettingsPage } from "./pages/main-page/SettingsPage";
 import { ExecutionDetailPage } from "./pages/main-page/monitoring-page/ExecutionDetailPage";
@@ -24,10 +24,7 @@ function App() {
         <Route path={PATHS.NOT_FOUND} element={<NotFoundPage />} />
         <Route path={PATHS.BASE} element={<MainPage />}>
           <Route index element={<Navigate to={PATHS.DASHBOARD} replace />} />
-          <Route
-            path={PATHS.DASHBOARD}
-            element={<PlaceholderPage content="Dashboard coming soon." />}
-          />
+          <Route path={PATHS.DASHBOARD} element={<NgSoarDashboardPage />} />
           <Route path={PATHS.PLAYBOOKS.BASE} element={<PlaybooksPage />} />
           <Route path={PATHS.PLAYBOOKS.NEW} element={<PlaybookCreatePage />} />
           <Route path={PATHS.PLAYBOOKS.EDIT} element={<PlaybookEditPage />} />
