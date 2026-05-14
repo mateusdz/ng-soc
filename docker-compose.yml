@@ -2,7 +2,6 @@ services:
   reverse-proxy:
     image: nginx:1.29-alpine
     depends_on:
-      - ng-soar-frontend
       - ng-soar-api
       - cacao-roaster
       - soarca-gui
