@@ -1,0 +1,1744 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "SOARCA API",
+        "contact": {},
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/keymanagement/": {
+            "get": {
+                "description": "return all keys in the KMS",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "keymanagement"
+                ],
+                "summary": "gets all keys from the KMS",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/keymanagement/:keyname/": {
+            "put": {
+                "description": "adds a key to the KMS; load key into cache and write file",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "keymanagement"
+                ],
+                "summary": "add key to KMS",
+                "parameters": [
+                    {
+                        "description": "key",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.KeyManagementKey"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "revokes the key by moving it to .revoked and renaming it",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "keymanagement"
+                ],
+                "summary": "remove key from KMS",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/keymanagement/refresh/": {
+            "post": {
+                "description": "refresh the KMS and re-parse the underlying directory",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "keymanagement"
+                ],
+                "summary": "refresh the KMS system, which allows the user to include manually added files in the KMS",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "json"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/manual/": {
+            "get": {
+                "description": "get all pending manual commands that still needs values to be returned",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "manual"
+                ],
+                "summary": "get all pending manual commands that still needs values to be returned",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.InteractionCommandData"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.InteractionCommandData"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/manual/continue": {
+            "post": {
+                "description": "updates the value of a variable according to the manual interaction",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "manual"
+                ],
+                "summary": "updates the value of a variable according to the manual interaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "execution ID",
+                        "name": "exec_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "playbook",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ManualOutArgsUpdatePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Execution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/manual/{exec_id}/{step_id}": {
+            "get": {
+                "description": "get a specific manual command that still needs a value to be returned",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "manual"
+                ],
+                "summary": "get a specific manual command that still needs a value to be returned",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "execution ID",
+                        "name": "exec_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.InteractionCommandData"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/playbook/": {
+            "get": {
+                "description": "return all stored playbooks default limit:100",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "playbook"
+                ],
+                "summary": "gets all the UUIDs for the stored playbooks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/cacao.Playbook"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "submit a new playbook api",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "playbook"
+                ],
+                "summary": "submit playbook via the api",
+                "parameters": [
+                    {
+                        "description": "playbook",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cacao.Playbook"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cacao.Playbook"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/playbook/meta": {
+            "get": {
+                "description": "get playbook meta information for playbook",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "playbook"
+                ],
+                "summary": "gets all the meta information for the stored playbooks",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.PlaybookMeta"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/playbook/{id}": {
+            "get": {
+                "description": "get playbook by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "playbook"
+                ],
+                "summary": "get CACAO playbook by its ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "playbook ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cacao.Playbook"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "update playbook by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "playbook"
+                ],
+                "summary": "update playbook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "playbook Id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "playbook",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cacao.Playbook"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cacao.Playbook"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete playbook by Id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "playbook"
+                ],
+                "summary": "delete playbook by Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "playbook ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/reporter": {
+            "get": {
+                "description": "return all stored executions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reporter"
+                ],
+                "summary": "gets all the UUIDs for the executions that can be retireved",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.PlaybookExecutionReport"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/reporter/{id}": {
+            "get": {
+                "description": "return execution information",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reporter"
+                ],
+                "summary": "gets information about an ongoing playbook execution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "execution identifier",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.PlaybookExecutionReport"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/status": {
+            "get": {
+                "description": "return SOARCA status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "status"
+                ],
+                "summary": "gets the SOARCA status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Status"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/status/ping": {
+            "get": {
+                "description": "return SOARCA status",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "ping pong"
+                ],
+                "summary": "ping to see if SOARCA is up returns pong",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/trigger/playbook": {
+            "post": {
+                "description": "trigger playbook",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trigger"
+                ],
+                "summary": "trigger a playbook by supplying a cacao playbook payload",
+                "parameters": [
+                    {
+                        "description": "execute playbook by payload",
+                        "name": "playbook",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cacao.Playbook"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Execution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/trigger/playbook/{id}": {
+            "post": {
+                "description": "trigger playbook by id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "trigger"
+                ],
+                "summary": "trigger a playbook by id that is stored in SOARCA",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "playbook ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "playbook",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cacao.Variables"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Execution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "api.Error": {
+            "type": "object",
+            "required": [
+                "message",
+                "original-call",
+                "status"
+            ],
+            "properties": {
+                "downstream-call": {
+                    "type": "string",
+                    "example": "{\"some\" : \"json\"}"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "missing argument in call"
+                },
+                "original-call": {
+                    "type": "string",
+                    "example": "/example/route"
+                },
+                "status": {
+                    "type": "integer",
+                    "example": 400
+                }
+            }
+        },
+        "api.Execution": {
+            "type": "object",
+            "required": [
+                "execution_id",
+                "payload"
+            ],
+            "properties": {
+                "execution_id": {
+                    "type": "string",
+                    "example": "2c855cd6-bbce-402f-a143-3d6eec346c08"
+                },
+                "payload": {
+                    "type": "string",
+                    "example": "playbook--0cec398c-db69-4f17-bde4-8ecbcc4a8879"
+                }
+            }
+        },
+        "api.InteractionCommandData": {
+            "type": "object",
+            "required": [
+                "command",
+                "description",
+                "execution_id",
+                "out_args",
+                "playbook_id",
+                "step_id",
+                "target",
+                "type"
+            ],
+            "properties": {
+                "command": {
+                    "description": "The command for the agent either command",
+                    "type": "string"
+                },
+                "commandb64": {
+                    "description": "Indicates if the command is in b64",
+                    "type": "boolean"
+                },
+                "description": {
+                    "description": "The description from the workflow step",
+                    "type": "string"
+                },
+                "execution_id": {
+                    "description": "The id of the execution",
+                    "type": "string"
+                },
+                "out_args": {
+                    "description": "Map of cacao variables handled in the step out args with current values and definitions",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.Variables"
+                        }
+                    ]
+                },
+                "playbook_id": {
+                    "description": "The id of the CACAO playbook executed by the execution",
+                    "type": "string"
+                },
+                "step_id": {
+                    "description": "The id of the step executed by the execution",
+                    "type": "string"
+                },
+                "target": {
+                    "description": "Map of cacao agent-target with the target(s) of this command",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.AgentTarget"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "The type of this content",
+                    "type": "string",
+                    "example": "execution-status"
+                }
+            }
+        },
+        "api.KeyManagementKey": {
+            "type": "object",
+            "properties": {
+                "private": {
+                    "type": "string"
+                },
+                "public": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.ManualOutArgsUpdatePayload": {
+            "type": "object",
+            "required": [
+                "execution_id",
+                "playbook_id",
+                "response_out_args",
+                "response_status",
+                "step_id",
+                "type"
+            ],
+            "properties": {
+                "execution_id": {
+                    "description": "The id of the execution",
+                    "type": "string"
+                },
+                "playbook_id": {
+                    "description": "The id of the CACAO playbook executed by the execution",
+                    "type": "string"
+                },
+                "response_out_args": {
+                    "description": "Map of cacao variables storing the out args value, handled in the step out args, with current values and definitions",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.Variables"
+                        }
+                    ]
+                },
+                "response_status": {
+                    "description": "Indicates status of command",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/manual.ManualResponseStatus"
+                        }
+                    ]
+                },
+                "step_id": {
+                    "description": "The id of the step executed by the execution",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "The type of this content",
+                    "type": "string",
+                    "example": "string"
+                }
+            }
+        },
+        "api.PlaybookExecutionReport": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "ended": {
+                    "type": "string"
+                },
+                "execution_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "playbook_id": {
+                    "type": "string"
+                },
+                "request_interval": {
+                    "type": "integer"
+                },
+                "started": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "status_text": {
+                    "type": "string"
+                },
+                "step_results": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/api.StepExecutionReport"
+                    }
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.PlaybookMeta": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "valid_from": {
+                    "type": "string"
+                },
+                "valid_until": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.Status": {
+            "type": "object",
+            "properties": {
+                "mode": {
+                    "type": "string"
+                },
+                "runtime": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "uptime": {
+                    "$ref": "#/definitions/api.Uptime"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.StepExecutionReport": {
+            "type": "object",
+            "properties": {
+                "automated_execution": {
+                    "type": "boolean"
+                },
+                "commands_b64": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "ended": {
+                    "type": "string"
+                },
+                "executed_by": {
+                    "type": "string"
+                },
+                "execution_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "started": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "status_text": {
+                    "type": "string"
+                },
+                "step_id": {
+                    "type": "string"
+                },
+                "variables": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/cacao.Variable"
+                    }
+                }
+            }
+        },
+        "api.Uptime": {
+            "type": "object",
+            "properties": {
+                "milliseconds": {
+                    "type": "integer"
+                },
+                "since": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.Addresses": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.AgentTarget": {
+            "type": "object",
+            "required": [
+                "name",
+                "type"
+            ],
+            "properties": {
+                "address": {
+                    "$ref": "#/definitions/cacao.Addresses"
+                },
+                "agent_target_extensions": {
+                    "$ref": "#/definitions/cacao.Extensions"
+                },
+                "authentication_info": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "contact": {
+                    "$ref": "#/definitions/cacao.Contact"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "location": {
+                    "$ref": "#/definitions/cacao.CivicLocation"
+                },
+                "logical": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "port": {
+                    "type": "string"
+                },
+                "sector": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.AgentTargets": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/cacao.AgentTarget"
+            }
+        },
+        "cacao.AuthenticationInformation": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "kms": {
+                    "type": "boolean"
+                },
+                "kms_key_identifier": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "oauth_header": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "private_key": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.AuthenticationInformations": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/cacao.AuthenticationInformation"
+            }
+        },
+        "cacao.Cases": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "cacao.CivicLocation": {
+            "type": "object",
+            "properties": {
+                "administrative_area": {
+                    "type": "string"
+                },
+                "building_details": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "string"
+                },
+                "longitude": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "network_details": {
+                    "type": "string"
+                },
+                "postal_code": {
+                    "type": "string"
+                },
+                "precision": {
+                    "type": "string"
+                },
+                "region": {
+                    "type": "string"
+                },
+                "street_address": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.Command": {
+            "type": "object",
+            "required": [
+                "command",
+                "type"
+            ],
+            "properties": {
+                "command": {
+                    "type": "string"
+                },
+                "command_b64": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "content_b64": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "headers": {
+                    "$ref": "#/definitions/cacao.Headers"
+                },
+                "playbook_activity": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.Contact": {
+            "type": "object",
+            "properties": {
+                "contact_details": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "phone": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "cacao.DataMarking": {
+            "type": "object",
+            "required": [
+                "created",
+                "created_by",
+                "id",
+                "type"
+            ],
+            "properties": {
+                "affected_party_notifications": {
+                    "type": "string"
+                },
+                "attribution": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string"
+                },
+                "created_by": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "encrypt_in_transit": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "external_references": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cacao.ExternalReferences"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "iep_version": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "marking_extensions": {
+                    "$ref": "#/definitions/cacao.Extensions"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "permitted_actions": {
+                    "type": "string"
+                },
+                "revoked": {
+                    "type": "boolean"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "statement": {
+                    "type": "string"
+                },
+                "tlp": {
+                    "type": "string"
+                },
+                "tlpv2_level": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "unmodified_resale": {
+                    "type": "string"
+                },
+                "valid_from": {
+                    "type": "string"
+                },
+                "valid_until": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.DataMarkings": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/cacao.DataMarking"
+            }
+        },
+        "cacao.ExtensionDefinition": {
+            "type": "object",
+            "required": [
+                "created_by",
+                "schema",
+                "type",
+                "version"
+            ],
+            "properties": {
+                "created_by": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "external_references": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cacao.ExternalReferences"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "schema": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.ExtensionDefinitions": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/cacao.ExtensionDefinition"
+            }
+        },
+        "cacao.Extensions": {
+            "type": "object",
+            "additionalProperties": true
+        },
+        "cacao.ExternalReferences": {
+            "type": "object",
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "external_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "reference_id": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.Headers": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.Playbook": {
+            "type": "object",
+            "required": [
+                "created",
+                "created_by",
+                "id",
+                "modified",
+                "name",
+                "spec_version",
+                "type",
+                "workflow",
+                "workflow_start"
+            ],
+            "properties": {
+                "agent_definitions": {
+                    "description": "Map of agent definitions used by the workflow steps",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.AgentTargets"
+                        }
+                    ]
+                },
+                "authentication_info_definitions": {
+                    "description": "Map of authentication information objects",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.AuthenticationInformations"
+                        }
+                    ]
+                },
+                "created": {
+                    "description": "Timestamp of the creation of the playbook",
+                    "type": "string",
+                    "example": "2024-01-01T09:00:00.000Z"
+                },
+                "created_by": {
+                    "description": "UUID referring to identity",
+                    "type": "string",
+                    "example": "identity--96abab60-238a-44ff-8962-5806aa60cbce"
+                },
+                "data_marking_definitions": {
+                    "description": "Map of datamarking definitions",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.DataMarkings"
+                        }
+                    ]
+                },
+                "derived_from": {
+                    "description": "Playbook id that this playbook is derived from",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[\"playbook--77c4c428-6304-4950-93ff-83c5224cb67a\"]"
+                    ]
+                },
+                "description": {
+                    "description": "A descriptive text to indicate what your playbook does",
+                    "type": "string",
+                    "example": "This is an example investigation playbook"
+                },
+                "extension_definitions": {
+                    "description": "Map of extension definitions used by the workflow steps",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.ExtensionDefinitions"
+                        }
+                    ]
+                },
+                "external_references": {
+                    "description": "List of external reference objects",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cacao.ExternalReferences"
+                    }
+                },
+                "id": {
+                    "description": "Used by SOARCA so refer to the object while loading it from the database",
+                    "type": "string",
+                    "example": "playbook--77c4c428-6304-4950-93ff-83c5fd4cb67a"
+                },
+                "impact": {
+                    "description": "A priority number ranging 0 - 100",
+                    "type": "integer",
+                    "example": 100
+                },
+                "labels": {
+                    "description": "List of labels to label playbook",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "markings": {
+                    "description": "List of datamarking identifiers",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "[marking-statement--6424867b-0440-4885-bd0b-604d51786d06]"
+                    ]
+                },
+                "modified": {
+                    "description": "Timestamp of the last modification of the playbook",
+                    "type": "string",
+                    "example": "2024-01-01T09:00:00.000Z"
+                },
+                "name": {
+                    "description": "An indicative name of the playbook",
+                    "type": "string",
+                    "example": "Investigation playbook"
+                },
+                "playbook_extensions": {
+                    "description": "Map of extensions used by the playbook",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.Extensions"
+                        }
+                    ]
+                },
+                "playbook_types": {
+                    "description": "Should be of the CACAO playbook-type-ov",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "investigation"
+                    ]
+                },
+                "playbook_variables": {
+                    "description": "Map of variables that are global to the playbook",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.Variables"
+                        }
+                    ]
+                },
+                "priority": {
+                    "description": "A priority number ranging 0 - 100",
+                    "type": "integer",
+                    "example": 100
+                },
+                "severity": {
+                    "description": "A priority number ranging 0 - 100",
+                    "type": "integer",
+                    "example": 100
+                },
+                "spec_version": {
+                    "description": "Indicate the specification version cacao-2.0 is the only supported version at this time",
+                    "type": "string",
+                    "example": "cacao-2.0"
+                },
+                "target_definitions": {
+                    "description": "Map of target definitions used by the workflow steps",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.AgentTargets"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "Must be playbook",
+                    "type": "string",
+                    "example": "playbook"
+                },
+                "valid_from": {
+                    "description": "Timestamp from when the playbook is valid",
+                    "type": "string",
+                    "example": "2024-01-01T09:00:00.000Z"
+                },
+                "valid_until": {
+                    "description": "Timestamp until when the playbook is valid",
+                    "type": "string",
+                    "example": "2124-01-01T09:00:00.000Z"
+                },
+                "workflow": {
+                    "description": "Map of workflow steps keyed by the step id",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/cacao.Workflow"
+                        }
+                    ]
+                },
+                "workflow_exception": {
+                    "description": "Step that marks the actions that need to be taken when an exception occurs",
+                    "type": "string",
+                    "example": "end--37bea005-4a36-4a77-bd1f-79a6e4682a13"
+                },
+                "workflow_start": {
+                    "description": "Start step of the playbook MUST be of step type START",
+                    "type": "string",
+                    "example": "start--07bea005-4a36-4a77-bd1f-79a6e4682a13"
+                }
+            }
+        },
+        "cacao.Step": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "agent": {
+                    "type": "string"
+                },
+                "authentication_info": {
+                    "type": "string"
+                },
+                "cases": {
+                    "$ref": "#/definitions/cacao.Cases"
+                },
+                "commands": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cacao.Command"
+                    }
+                },
+                "condition": {
+                    "type": "string"
+                },
+                "delay": {
+                    "type": "integer"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "external_references": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cacao.ExternalReferences"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "in_args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "next_steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "on_completion": {
+                    "type": "string"
+                },
+                "on_failure": {
+                    "type": "string"
+                },
+                "on_false": {
+                    "type": "string"
+                },
+                "on_success": {
+                    "type": "string"
+                },
+                "on_true": {
+                    "type": "string"
+                },
+                "out_args": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "owner": {
+                    "type": "string"
+                },
+                "playbook_id": {
+                    "type": "string"
+                },
+                "playbook_version": {
+                    "type": "string"
+                },
+                "step_extensions": {
+                    "$ref": "#/definitions/cacao.Extensions"
+                },
+                "step_variables": {
+                    "$ref": "#/definitions/cacao.Variables"
+                },
+                "switch": {
+                    "type": "string"
+                },
+                "targets": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "timeout": {
+                    "type": "integer"
+                },
+                "type": {
+                    "description": "The uuid of the step (not part of CACAO spec, but included in object for utility)",
+                    "type": "string"
+                }
+            }
+        },
+        "cacao.Variable": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "constant": {
+                    "description": "Indicate if it's a constant",
+                    "type": "boolean",
+                    "example": false
+                },
+                "description": {
+                    "description": "A description of the variable",
+                    "type": "string",
+                    "example": "some string"
+                },
+                "external": {
+                    "description": "Indicate if it's external",
+                    "type": "boolean",
+                    "example": false
+                },
+                "name": {
+                    "description": "The name of the variable in the style __variable_name__ (not part of CACAO spec, but included in object for utility)",
+                    "type": "string",
+                    "example": "__example_string__"
+                },
+                "type": {
+                    "description": "Type of the variable should be OASIS  variable-type-ov",
+                    "type": "string",
+                    "example": "string"
+                },
+                "value": {
+                    "description": "The value of the that the variable will evaluate to",
+                    "type": "string",
+                    "example": "this is a value"
+                }
+            }
+        },
+        "cacao.Variables": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/cacao.Variable"
+            }
+        },
+        "cacao.Workflow": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/cacao.Step"
+            }
+        },
+        "manual.ManualResponseStatus": {
+            "type": "string",
+            "enum": [
+                "success",
+                "failure"
+            ],
+            "x-enum-varnames": [
+                "ManualResponseSuccessStatus",
+                "ManualResponseFailureStatus"
+            ]
+        }
+    }
+}

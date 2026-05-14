@@ -1,0 +1,1175 @@
+definitions:
+  api.Error:
+    properties:
+      downstream-call:
+        example: '{"some" : "json"}'
+        type: string
+      message:
+        example: missing argument in call
+        type: string
+      original-call:
+        example: /example/route
+        type: string
+      status:
+        example: 400
+        type: integer
+    required:
+    - message
+    - original-call
+    - status
+    type: object
+  api.Execution:
+    properties:
+      execution_id:
+        example: 2c855cd6-bbce-402f-a143-3d6eec346c08
+        type: string
+      payload:
+        example: playbook--0cec398c-db69-4f17-bde4-8ecbcc4a8879
+        type: string
+    required:
+    - execution_id
+    - payload
+    type: object
+  api.InteractionCommandData:
+    properties:
+      command:
+        description: The command for the agent either command
+        type: string
+      commandb64:
+        description: Indicates if the command is in b64
+        type: boolean
+      description:
+        description: The description from the workflow step
+        type: string
+      execution_id:
+        description: The id of the execution
+        type: string
+      out_args:
+        allOf:
+        - $ref: '#/definitions/cacao.Variables'
+        description: Map of cacao variables handled in the step out args with current
+          values and definitions
+      playbook_id:
+        description: The id of the CACAO playbook executed by the execution
+        type: string
+      step_id:
+        description: The id of the step executed by the execution
+        type: string
+      target:
+        allOf:
+        - $ref: '#/definitions/cacao.AgentTarget'
+        description: Map of cacao agent-target with the target(s) of this command
+      type:
+        description: The type of this content
+        example: execution-status
+        type: string
+    required:
+    - command
+    - description
+    - execution_id
+    - out_args
+    - playbook_id
+    - step_id
+    - target
+    - type
+    type: object
+  api.KeyManagementKey:
+    properties:
+      private:
+        type: string
+      public:
+        type: string
+    type: object
+  api.ManualOutArgsUpdatePayload:
+    properties:
+      execution_id:
+        description: The id of the execution
+        type: string
+      playbook_id:
+        description: The id of the CACAO playbook executed by the execution
+        type: string
+      response_out_args:
+        allOf:
+        - $ref: '#/definitions/cacao.Variables'
+        description: Map of cacao variables storing the out args value, handled in
+          the step out args, with current values and definitions
+      response_status:
+        allOf:
+        - $ref: '#/definitions/manual.ManualResponseStatus'
+        description: Indicates status of command
+      step_id:
+        description: The id of the step executed by the execution
+        type: string
+      type:
+        description: The type of this content
+        example: string
+        type: string
+    required:
+    - execution_id
+    - playbook_id
+    - response_out_args
+    - response_status
+    - step_id
+    - type
+    type: object
+  api.PlaybookExecutionReport:
+    properties:
+      description:
+        type: string
+      ended:
+        type: string
+      execution_id:
+        type: string
+      name:
+        type: string
+      playbook_id:
+        type: string
+      request_interval:
+        type: integer
+      started:
+        type: string
+      status:
+        type: string
+      status_text:
+        type: string
+      step_results:
+        additionalProperties:
+          $ref: '#/definitions/api.StepExecutionReport'
+        type: object
+      type:
+        type: string
+    type: object
+  api.PlaybookMeta:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      labels:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      valid_from:
+        type: string
+      valid_until:
+        type: string
+    type: object
+  api.Status:
+    properties:
+      mode:
+        type: string
+      runtime:
+        type: string
+      time:
+        type: string
+      uptime:
+        $ref: '#/definitions/api.Uptime'
+      version:
+        type: string
+    type: object
+  api.StepExecutionReport:
+    properties:
+      automated_execution:
+        type: boolean
+      commands_b64:
+        items:
+          type: string
+        type: array
+      description:
+        type: string
+      ended:
+        type: string
+      executed_by:
+        type: string
+      execution_id:
+        type: string
+      name:
+        type: string
+      started:
+        type: string
+      status:
+        type: string
+      status_text:
+        type: string
+      step_id:
+        type: string
+      variables:
+        additionalProperties:
+          $ref: '#/definitions/cacao.Variable'
+        type: object
+    type: object
+  api.Uptime:
+    properties:
+      milliseconds:
+        type: integer
+      since:
+        type: string
+    type: object
+  cacao.Addresses:
+    additionalProperties:
+      items:
+        type: string
+      type: array
+    type: object
+  cacao.AgentTarget:
+    properties:
+      address:
+        $ref: '#/definitions/cacao.Addresses'
+      agent_target_extensions:
+        $ref: '#/definitions/cacao.Extensions'
+      authentication_info:
+        type: string
+      category:
+        items:
+          type: string
+        type: array
+      contact:
+        $ref: '#/definitions/cacao.Contact'
+      description:
+        type: string
+      id:
+        type: string
+      location:
+        $ref: '#/definitions/cacao.CivicLocation'
+      logical:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      port:
+        type: string
+      sector:
+        type: string
+      type:
+        type: string
+    required:
+    - name
+    - type
+    type: object
+  cacao.AgentTargets:
+    additionalProperties:
+      $ref: '#/definitions/cacao.AgentTarget'
+    type: object
+  cacao.AuthenticationInformation:
+    properties:
+      description:
+        type: string
+      id:
+        type: string
+      kms:
+        type: boolean
+      kms_key_identifier:
+        type: string
+      name:
+        type: string
+      oauth_header:
+        type: string
+      password:
+        type: string
+      private_key:
+        type: string
+      token:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+      username:
+        type: string
+    required:
+    - type
+    type: object
+  cacao.AuthenticationInformations:
+    additionalProperties:
+      $ref: '#/definitions/cacao.AuthenticationInformation'
+    type: object
+  cacao.Cases:
+    additionalProperties:
+      type: string
+    type: object
+  cacao.CivicLocation:
+    properties:
+      administrative_area:
+        type: string
+      building_details:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      description:
+        type: string
+      latitude:
+        type: string
+      longitude:
+        type: string
+      name:
+        type: string
+      network_details:
+        type: string
+      postal_code:
+        type: string
+      precision:
+        type: string
+      region:
+        type: string
+      street_address:
+        type: string
+    type: object
+  cacao.Command:
+    properties:
+      command:
+        type: string
+      command_b64:
+        type: string
+      content:
+        type: string
+      content_b64:
+        type: string
+      description:
+        type: string
+      headers:
+        $ref: '#/definitions/cacao.Headers'
+      playbook_activity:
+        type: string
+      type:
+        type: string
+      version:
+        type: string
+    required:
+    - command
+    - type
+    type: object
+  cacao.Contact:
+    properties:
+      contact_details:
+        type: string
+      email:
+        additionalProperties:
+          type: string
+        type: object
+      phone:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  cacao.DataMarking:
+    properties:
+      affected_party_notifications:
+        type: string
+      attribution:
+        type: string
+      created:
+        type: string
+      created_by:
+        type: string
+      description:
+        type: string
+      encrypt_in_transit:
+        type: string
+      end_date:
+        type: string
+      external_references:
+        items:
+          $ref: '#/definitions/cacao.ExternalReferences'
+        type: array
+      id:
+        type: string
+      iep_version:
+        type: string
+      labels:
+        items:
+          type: string
+        type: array
+      marking_extensions:
+        $ref: '#/definitions/cacao.Extensions'
+      name:
+        type: string
+      permitted_actions:
+        type: string
+      revoked:
+        type: boolean
+      start_date:
+        type: string
+      statement:
+        type: string
+      tlp:
+        type: string
+      tlpv2_level:
+        type: string
+      type:
+        type: string
+      unmodified_resale:
+        type: string
+      valid_from:
+        type: string
+      valid_until:
+        type: string
+    required:
+    - created
+    - created_by
+    - id
+    - type
+    type: object
+  cacao.DataMarkings:
+    additionalProperties:
+      $ref: '#/definitions/cacao.DataMarking'
+    type: object
+  cacao.ExtensionDefinition:
+    properties:
+      created_by:
+        type: string
+      description:
+        type: string
+      external_references:
+        items:
+          $ref: '#/definitions/cacao.ExternalReferences'
+        type: array
+      id:
+        type: string
+      name:
+        type: string
+      schema:
+        type: string
+      type:
+        type: string
+      version:
+        type: string
+    required:
+    - created_by
+    - schema
+    - type
+    - version
+    type: object
+  cacao.ExtensionDefinitions:
+    additionalProperties:
+      $ref: '#/definitions/cacao.ExtensionDefinition'
+    type: object
+  cacao.Extensions:
+    additionalProperties: true
+    type: object
+  cacao.ExternalReferences:
+    properties:
+      description:
+        type: string
+      external_id:
+        type: string
+      name:
+        type: string
+      reference_id:
+        type: string
+      source:
+        type: string
+      url:
+        type: string
+    required:
+    - name
+    type: object
+  cacao.Headers:
+    additionalProperties:
+      items:
+        type: string
+      type: array
+    type: object
+  cacao.Playbook:
+    properties:
+      agent_definitions:
+        allOf:
+        - $ref: '#/definitions/cacao.AgentTargets'
+        description: Map of agent definitions used by the workflow steps
+      authentication_info_definitions:
+        allOf:
+        - $ref: '#/definitions/cacao.AuthenticationInformations'
+        description: Map of authentication information objects
+      created:
+        description: Timestamp of the creation of the playbook
+        example: "2024-01-01T09:00:00.000Z"
+        type: string
+      created_by:
+        description: UUID referring to identity
+        example: identity--96abab60-238a-44ff-8962-5806aa60cbce
+        type: string
+      data_marking_definitions:
+        allOf:
+        - $ref: '#/definitions/cacao.DataMarkings'
+        description: Map of datamarking definitions
+      derived_from:
+        description: Playbook id that this playbook is derived from
+        example:
+        - '["playbook--77c4c428-6304-4950-93ff-83c5224cb67a"]'
+        items:
+          type: string
+        type: array
+      description:
+        description: A descriptive text to indicate what your playbook does
+        example: This is an example investigation playbook
+        type: string
+      extension_definitions:
+        allOf:
+        - $ref: '#/definitions/cacao.ExtensionDefinitions'
+        description: Map of extension definitions used by the workflow steps
+      external_references:
+        description: List of external reference objects
+        items:
+          $ref: '#/definitions/cacao.ExternalReferences'
+        type: array
+      id:
+        description: Used by SOARCA so refer to the object while loading it from the
+          database
+        example: playbook--77c4c428-6304-4950-93ff-83c5fd4cb67a
+        type: string
+      impact:
+        description: A priority number ranging 0 - 100
+        example: 100
+        type: integer
+      labels:
+        description: List of labels to label playbook
+        items:
+          type: string
+        type: array
+      markings:
+        description: List of datamarking identifiers
+        example:
+        - '[marking-statement--6424867b-0440-4885-bd0b-604d51786d06]'
+        items:
+          type: string
+        type: array
+      modified:
+        description: Timestamp of the last modification of the playbook
+        example: "2024-01-01T09:00:00.000Z"
+        type: string
+      name:
+        description: An indicative name of the playbook
+        example: Investigation playbook
+        type: string
+      playbook_extensions:
+        allOf:
+        - $ref: '#/definitions/cacao.Extensions'
+        description: Map of extensions used by the playbook
+      playbook_types:
+        description: Should be of the CACAO playbook-type-ov
+        example:
+        - investigation
+        items:
+          type: string
+        type: array
+      playbook_variables:
+        allOf:
+        - $ref: '#/definitions/cacao.Variables'
+        description: Map of variables that are global to the playbook
+      priority:
+        description: A priority number ranging 0 - 100
+        example: 100
+        type: integer
+      severity:
+        description: A priority number ranging 0 - 100
+        example: 100
+        type: integer
+      spec_version:
+        description: Indicate the specification version cacao-2.0 is the only supported
+          version at this time
+        example: cacao-2.0
+        type: string
+      target_definitions:
+        allOf:
+        - $ref: '#/definitions/cacao.AgentTargets'
+        description: Map of target definitions used by the workflow steps
+      type:
+        description: Must be playbook
+        example: playbook
+        type: string
+      valid_from:
+        description: Timestamp from when the playbook is valid
+        example: "2024-01-01T09:00:00.000Z"
+        type: string
+      valid_until:
+        description: Timestamp until when the playbook is valid
+        example: "2124-01-01T09:00:00.000Z"
+        type: string
+      workflow:
+        allOf:
+        - $ref: '#/definitions/cacao.Workflow'
+        description: Map of workflow steps keyed by the step id
+      workflow_exception:
+        description: Step that marks the actions that need to be taken when an exception
+          occurs
+        example: end--37bea005-4a36-4a77-bd1f-79a6e4682a13
+        type: string
+      workflow_start:
+        description: Start step of the playbook MUST be of step type START
+        example: start--07bea005-4a36-4a77-bd1f-79a6e4682a13
+        type: string
+    required:
+    - created
+    - created_by
+    - id
+    - modified
+    - name
+    - spec_version
+    - type
+    - workflow
+    - workflow_start
+    type: object
+  cacao.Step:
+    properties:
+      agent:
+        type: string
+      authentication_info:
+        type: string
+      cases:
+        $ref: '#/definitions/cacao.Cases'
+      commands:
+        items:
+          $ref: '#/definitions/cacao.Command'
+        type: array
+      condition:
+        type: string
+      delay:
+        type: integer
+      description:
+        type: string
+      external_references:
+        items:
+          $ref: '#/definitions/cacao.ExternalReferences'
+        type: array
+      id:
+        type: string
+      in_args:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
+      next_steps:
+        items:
+          type: string
+        type: array
+      on_completion:
+        type: string
+      on_failure:
+        type: string
+      on_false:
+        type: string
+      on_success:
+        type: string
+      on_true:
+        type: string
+      out_args:
+        items:
+          type: string
+        type: array
+      owner:
+        type: string
+      playbook_id:
+        type: string
+      playbook_version:
+        type: string
+      step_extensions:
+        $ref: '#/definitions/cacao.Extensions'
+      step_variables:
+        $ref: '#/definitions/cacao.Variables'
+      switch:
+        type: string
+      targets:
+        items:
+          type: string
+        type: array
+      timeout:
+        type: integer
+      type:
+        description: The uuid of the step (not part of CACAO spec, but included in
+          object for utility)
+        type: string
+    required:
+    - type
+    type: object
+  cacao.Variable:
+    properties:
+      constant:
+        description: Indicate if it's a constant
+        example: false
+        type: boolean
+      description:
+        description: A description of the variable
+        example: some string
+        type: string
+      external:
+        description: Indicate if it's external
+        example: false
+        type: boolean
+      name:
+        description: The name of the variable in the style __variable_name__ (not
+          part of CACAO spec, but included in object for utility)
+        example: __example_string__
+        type: string
+      type:
+        description: Type of the variable should be OASIS  variable-type-ov
+        example: string
+        type: string
+      value:
+        description: The value of the that the variable will evaluate to
+        example: this is a value
+        type: string
+    required:
+    - type
+    type: object
+  cacao.Variables:
+    additionalProperties:
+      $ref: '#/definitions/cacao.Variable'
+    type: object
+  cacao.Workflow:
+    additionalProperties:
+      $ref: '#/definitions/cacao.Step'
+    type: object
+  manual.ManualResponseStatus:
+    enum:
+    - success
+    - failure
+    type: string
+    x-enum-varnames:
+    - ManualResponseSuccessStatus
+    - ManualResponseFailureStatus
+info:
+  contact: {}
+  title: SOARCA API
+  version: 1.0.0
+paths:
+  /keymanagement/:
+    get:
+      description: return all keys in the KMS
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: gets all keys from the KMS
+      tags:
+      - keymanagement
+  /keymanagement/:keyname/:
+    delete:
+      description: revokes the key by moving it to .revoked and renaming it
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: remove key from KMS
+      tags:
+      - keymanagement
+    put:
+      description: adds a key to the KMS; load key into cache and write file
+      parameters:
+      - description: key
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api.KeyManagementKey'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: add key to KMS
+      tags:
+      - keymanagement
+  /keymanagement/refresh/:
+    post:
+      description: refresh the KMS and re-parse the underlying directory
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: json
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: refresh the KMS system, which allows the user to include manually added
+        files in the KMS
+      tags:
+      - keymanagement
+  /manual/:
+    get:
+      consumes:
+      - application/json
+      description: get all pending manual commands that still needs values to be returned
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.InteractionCommandData'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            items:
+              $ref: '#/definitions/api.InteractionCommandData'
+            type: array
+      summary: get all pending manual commands that still needs values to be returned
+      tags:
+      - manual
+  /manual/{exec_id}/{step_id}:
+    get:
+      consumes:
+      - application/json
+      description: get a specific manual command that still needs a value to be returned
+      parameters:
+      - description: execution ID
+        in: path
+        name: exec_id
+        required: true
+        type: string
+      - description: step ID
+        in: path
+        name: step_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.InteractionCommandData'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: get a specific manual command that still needs a value to be returned
+      tags:
+      - manual
+  /manual/continue:
+    post:
+      consumes:
+      - application/json
+      description: updates the value of a variable according to the manual interaction
+      parameters:
+      - description: execution ID
+        in: path
+        name: exec_id
+        required: true
+        type: string
+      - description: step ID
+        in: path
+        name: step_id
+        required: true
+        type: string
+      - description: playbook
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/api.ManualOutArgsUpdatePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Execution'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: updates the value of a variable according to the manual interaction
+      tags:
+      - manual
+  /playbook/:
+    get:
+      description: return all stored playbooks default limit:100
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/cacao.Playbook'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: gets all the UUIDs for the stored playbooks
+      tags:
+      - playbook
+    post:
+      consumes:
+      - application/json
+      description: submit a new playbook api
+      parameters:
+      - description: playbook
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/cacao.Playbook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cacao.Playbook'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: submit playbook via the api
+      tags:
+      - playbook
+  /playbook/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: delete playbook by Id
+      parameters:
+      - description: playbook ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: delete playbook by Id
+      tags:
+      - playbook
+    get:
+      consumes:
+      - application/json
+      description: get playbook by ID
+      parameters:
+      - description: playbook ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cacao.Playbook'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: get CACAO playbook by its ID
+      tags:
+      - playbook
+    put:
+      consumes:
+      - application/json
+      description: update playbook by Id
+      parameters:
+      - description: playbook Id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: playbook
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/cacao.Playbook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cacao.Playbook'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: update playbook
+      tags:
+      - playbook
+  /playbook/meta:
+    get:
+      description: get playbook meta information for playbook
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.PlaybookMeta'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: gets all the meta information for the stored playbooks
+      tags:
+      - playbook
+  /reporter:
+    get:
+      description: return all stored executions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/api.PlaybookExecutionReport'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: gets all the UUIDs for the executions that can be retireved
+      tags:
+      - reporter
+  /reporter/{id}:
+    get:
+      description: return execution information
+      parameters:
+      - description: execution identifier
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.PlaybookExecutionReport'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: gets information about an ongoing playbook execution
+      tags:
+      - reporter
+  /status:
+    get:
+      description: return SOARCA status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Status'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: gets the SOARCA status
+      tags:
+      - status
+  /status/ping:
+    get:
+      description: return SOARCA status
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: ping to see if SOARCA is up returns pong
+      tags:
+      - ping pong
+  /trigger/playbook:
+    post:
+      consumes:
+      - application/json
+      description: trigger playbook
+      parameters:
+      - description: execute playbook by payload
+        in: body
+        name: playbook
+        required: true
+        schema:
+          $ref: '#/definitions/cacao.Playbook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Execution'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: trigger a playbook by supplying a cacao playbook payload
+      tags:
+      - trigger
+  /trigger/playbook/{id}:
+    post:
+      consumes:
+      - application/json
+      description: trigger playbook by id
+      parameters:
+      - description: playbook ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: playbook
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/cacao.Variables'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Execution'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      summary: trigger a playbook by id that is stored in SOARCA
+      tags:
+      - trigger
+swagger: "2.0"

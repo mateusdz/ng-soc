@@ -1,0 +1,27 @@
+package guid
+
+import "github.com/google/uuid"
+
+/*
+*
+IGuid allows one to inject the uuid property and have it be available by mocking
+*
+*/
+type IGuid interface {
+	New() uuid.UUID
+	NewV7() uuid.UUID
+}
+
+type Guid struct {
+	uuid.UUID
+}
+
+func (id *Guid) New() uuid.UUID {
+	var uuid, _ = uuid.NewUUID()
+	return uuid
+}
+
+func (id *Guid) NewV7() uuid.UUID {
+	var uuid, _ = uuid.NewV7()
+	return uuid
+}

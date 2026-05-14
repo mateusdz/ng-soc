@@ -1,0 +1,18 @@
+services:
+  soarca-gui:
+    container_name: soarca-gui
+    image: soarca-gui:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_APP_VERSION: ${VITE_APP_VERSION:-development}
+        NGINX_BACKEND_URL: ${NGINX_BACKEND_URL:-http://host.docker.internal:8080/}
+        NGINX_SERVER_PORT: ${NGINX_SERVER_PORT:-8081}
+    ports:
+      - "${DOCKER_HOST_PORT:-8081}:${NGINX_SERVER_PORT:-8081}"
+    environment:
+      - NODE_ENV=production
+      - NGINX_BACKEND_URL=${NGINX_BACKEND_URL:-http://host.docker.internal:8080/}
+      - NGINX_SERVER_PORT=${NGINX_SERVER_PORT:-8081}
+    restart: unless-stopped
