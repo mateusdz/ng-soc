@@ -1,6 +1,6 @@
 # NG-SOAR
 
-NG-SOAR is a lightweight frontend shell for the NG-SOC SOAR demonstration. Phase 1 provides the navigable React/Vite application, mock playbook library, Docker image, and reverse proxy routes for CACAO Roaster, SOARCA-GUI, and SOARCA.
+NG-SOAR is an NG-SOC SOAR demonstration platform built around SOARCA-GUI, CACAO Roaster, SOARCA, and a small NG-SOAR API for persisted execution summaries.
 
 ## Run
 
@@ -19,14 +19,14 @@ Direct development endpoints are also exposed on localhost:
 - MongoDB: `127.0.0.1:27017`
 - MQTT/Mosquitto: `127.0.0.1:1883`
 
-## Phase 1 Routes
+## Routes
 
 - `/dashboard`
 - `/playbooks`
 - `/playbooks/:playbookId`
-- `/roaster/`
-- `/executions/`
+- `/roaster`
+- `/roaster/playbook/:playbookId`
+- `/monitoring`
 - `/settings`
 
-The playbook library now loads from SOARCA `GET /playbook/` through `/api/soarca/playbook/`.
-If SOARCA cannot be reached, NG-SOAR falls back to mock data so the shell remains usable.
+The main frontend is the NG-SOAR extended SOARCA-GUI application. The former standalone `ng-soar-frontend` shell has been removed after its useful search, Roaster, dashboard, and execution-summary features were migrated.

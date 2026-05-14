@@ -11,17 +11,6 @@ services:
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
 
-  ng-soar-frontend:
-    build:
-      context: ./apps/ng-soar-frontend
-      args:
-        VITE_NG_SOAR_API_BASE: ${VITE_NG_SOAR_API_BASE:-/api/ng-soar}
-        VITE_SOARCA_API_BASE: ${VITE_SOARCA_API_BASE:-/api/soarca}
-        VITE_ROASTER_BASE: ${VITE_ROASTER_BASE:-/roaster}
-        VITE_SOARCA_GUI_BASE: ${VITE_SOARCA_GUI_BASE:-/executions}
-        VITE_ROASTER_EMBED_URL: ${VITE_ROASTER_EMBED_URL:-http://127.0.0.1:3000}
-        VITE_SOARCA_GUI_EMBED_URL: ${VITE_SOARCA_GUI_EMBED_URL:-http://127.0.0.1:8081}
-
   ng-soar-api:
     build:
       context: ./apps/ng-soar-api

@@ -4,7 +4,7 @@
 
 Implement **NG-SOAR**, the NG-SOC project’s integrated SOAR platform prototype.
 
-The current implementation direction is **Option B**: extend **SOARCA-GUI** into the main NG-SOAR frontend instead of keeping a separate `ng-soar-frontend` shell. The previous NG-SOAR frontend work remains useful as reference code for search, filtering, Roaster hosting, and execution-summary display, but the final user-facing platform should live in `apps/SOARCA-GUI`.
+The current implementation direction is **Option B**: extend **SOARCA-GUI** into the main NG-SOAR frontend instead of keeping a separate frontend shell. The previous standalone `ng-soar-frontend` reference app has been removed after its useful search, filtering, Roaster hosting, dashboard, and execution-summary display features were migrated into `apps/SOARCA-GUI`.
 
 NG-SOAR should provide one professional web interface for:
 
@@ -48,7 +48,7 @@ Reverse proxy
 SOARCA + MongoDB
 ```
 
-The former `apps/ng-soar-frontend` should be removed only after its useful features have been migrated into SOARCA-GUI.
+The former `apps/ng-soar-frontend` has been removed. SOARCA-GUI is now the only first-party frontend in the main Docker stack.
 
 ## Existing Tools
 
@@ -100,10 +100,9 @@ The platform should extend SOARCA-GUI rather than embed SOARCA-GUI inside the se
 
 Consequences:
 
-- `apps/SOARCA-GUI` receives NG-SOAR branding, navigation, playbook search/filtering, Roaster routes, and persisted execution summary integration.
-- `apps/ng-soar-frontend` remains temporary reference code.
+- `apps/SOARCA-GUI` receives NG-SOAR branding, navigation, playbook search/filtering, Roaster routes, dashboard, and persisted execution summary integration.
 - The reverse proxy should serve SOARCA-GUI at `/`.
-- Remove `apps/ng-soar-frontend` after equivalent functionality exists in SOARCA-GUI.
+- The old standalone frontend should not be reintroduced unless there is a deliberate product split.
 
 ### 2. Playbook Source of Truth Remains SOARCA
 
@@ -357,8 +356,7 @@ ng-soar/
 │   ├── SOARCA-GUI/              # primary NG-SOAR frontend
 │   ├── CACAO-Roaster/           # reused authoring frontend
 │   ├── SOARCA/                  # reused backend source reference
-│   ├── ng-soar-api/             # execution summary persistence/BFF
-│   └── ng-soar-frontend/        # temporary reference, remove after migration
+│   └── ng-soar-api/             # execution summary persistence/BFF
 ├── nginx/
 │   └── default.conf
 ├── docker-compose.yml
@@ -415,7 +413,7 @@ The stack should start:
 - `mosquitto`.
 - `reverse-proxy`.
 
-Remove `ng-soar-frontend` after migration is complete.
+The former standalone `ng-soar-frontend` service has been removed from the main stack.
 
 ## Implementation Phases
 
@@ -434,7 +432,7 @@ Acceptance criteria:
 - `http://localhost:8080/` opens the SOARCA-GUI based NG-SOAR app.
 - Sidebar/header branding says NG-SOAR.
 - Existing playbooks and monitoring pages still work.
-- `ng-soar-frontend` is no longer needed for the main visible route.
+- No standalone NG-SOAR frontend service is required for the main visible route.
 
 ### Phase 2: Add Roaster Navigation to SOARCA-GUI
 
@@ -455,7 +453,7 @@ Acceptance criteria:
 
 Build:
 
-- Port metadata extraction/search/filter utilities from `ng-soar-frontend`.
+- Keep migrated NG-SOAR metadata extraction/search/filter utilities under `apps/SOARCA-GUI/src/ng-soar`.
 - Merge them into SOARCA-GUI `PlaybooksPage`.
 - Preserve SOARCA-GUI’s existing card/detail visual style.
 - Add saved views.
@@ -543,12 +541,13 @@ Build:
 - Confirm SOARCA-GUI contains all useful migrated features.
 - Remove `ng-soar-frontend` service from Docker Compose.
 - Remove old frontend routes/env vars.
-- Remove `apps/ng-soar-frontend` if no longer needed.
+- Remove `apps/ng-soar-frontend`.
 
 Acceptance criteria:
 
 - Full demo flow works with SOARCA-GUI as the only main frontend.
 - No dead navigation points to the old frontend.
+- `docker compose config --services` lists no `ng-soar-frontend` service.
 
 ### Phase 10: Documentation and Demo Polish
 
