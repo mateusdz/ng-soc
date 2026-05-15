@@ -79,10 +79,7 @@ export function NgSoarPlaybookFiltersToolbar({ search }: PlaybookFiltersToolbarP
             $value={filters.author}
             $onChange={(value) => setFilter("author", value)}
             $placeholder="Any author"
-            $options={authorOptions.map((author) => ({
-              label: author,
-              value: author,
-            }))}
+            $options={authorOptions}
           />
         </FilterField>
         <FilterField>

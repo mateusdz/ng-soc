@@ -195,13 +195,13 @@ export default class IntegrationLogsWindow {
 		this._integrationLogs.addUserLogItem('Ping', 'Sending a ping to the SOARCA server');
 		this._integrationLogs.addSystemLogItem('Pong', '200 OK');
 		this._integrationLogs.addUserLogItem(
-			'Trigger Playbook',
+			'Execute playbook',
 			'THe playbook id is 12fasd123d1233',
 		);
 		this._integrationLogs.addSystemLogItem('Execution ID', 'Execution ID: 12341234123');
 		this._integrationLogs.addUserLogItem(
 			'Checing Execution Status',
-			'Checking triggered playbook with execution id 12341234123',
+			'Checking executed playbook with execution id 12341234123',
 		);
 		this._integrationLogs.addSystemLogItem(
 			'Execution Status Update',

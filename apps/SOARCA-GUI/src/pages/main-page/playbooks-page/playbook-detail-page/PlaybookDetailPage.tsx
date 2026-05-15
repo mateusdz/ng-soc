@@ -69,7 +69,7 @@ export const PlaybookDetailPage: React.FC = () => {
       }
     },
     onError: (err: Error) => {
-      toast.error(formatErrorForToast(err, "Failed to trigger playbook"));
+      toast.error(formatErrorForToast(err, "Failed to execute playbook"));
     },
   });
 

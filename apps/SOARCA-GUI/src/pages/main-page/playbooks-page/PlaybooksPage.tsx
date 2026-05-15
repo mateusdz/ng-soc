@@ -29,6 +29,10 @@ import {
   createLastExecutionSummaryMap,
   getExecutionSummaries,
 } from "@/ng-soar/api/executionSummaries";
+import {
+  createIdentityMap,
+  getIdentities,
+} from "@/ng-soar/api/identities";
 
 import {
   PlaybookActions,
@@ -161,14 +165,24 @@ export const PlaybooksPage: React.FC = () => {
     enabled: Boolean(data?.length),
     refetchOnWindowFocus: false,
   });
+  const { data: identities = [] } = useQuery({
+    queryKey: ["ng-soar-identities"],
+    queryFn: getIdentities,
+    refetchOnWindowFocus: false,
+  });
 
   const executionSummariesByPlaybook = React.useMemo(
     () => createLastExecutionSummaryMap(executionSummaries),
     [executionSummaries],
   );
+  const identitiesById = React.useMemo(
+    () => createIdentityMap(identities),
+    [identities],
+  );
   const playbookSearch = useNgSoarPlaybookSearch(
     [...(data || [])],
     executionSummariesByPlaybook,
+    identitiesById,
   );
   const noContent =
     !isLoading && !isError && playbookSearch.searchRecords.length === 0;

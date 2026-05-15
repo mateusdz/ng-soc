@@ -119,6 +119,17 @@ export const RoasterFrameShell = styled.section`
   box-shadow: ${({ theme }) => theme.shadows.sm};
 `;
 
+export const RoasterWorkspace = styled.section`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 24rem);
+  gap: ${({ theme }) => theme.spacing.lg};
+  align-items: stretch;
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 export const RoasterFrame = styled.iframe`
   display: block;
   width: 100%;
@@ -138,4 +149,69 @@ export const RoasterLoadingOverlay = styled.div<{ $visible: boolean }>`
   color: ${({ theme }) => theme.colors.text.secondary};
   font: ${({ theme }) => theme.typography.bodyMedium.font};
   z-index: 1;
+`;
+
+export const ExecutionPanel = styled.aside`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.lg};
+  min-height: 620px;
+  padding: ${({ theme }) => theme.spacing.lg};
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.lg};
+  background: ${({ theme }) => theme.colors.background.primary};
+  box-shadow: ${({ theme }) => theme.shadows.sm};
+`;
+
+export const ExecutionPanelHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.xs};
+`;
+
+export const ExecutionPanelTitle = styled.h2`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font: ${({ theme }) => theme.typography.h4.font};
+`;
+
+export const ExecutionPanelText = styled.p`
+  margin: 0;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  font: ${({ theme }) => theme.typography.caption.font};
+`;
+
+export const ExecutionStatusBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+  padding: ${({ theme }) => theme.spacing.md};
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ theme }) => theme.colors.background.tertiary};
+`;
+
+export const ExecutionDetailGrid = styled.div`
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+`;
+
+export const ExecutionDetailLabel = styled.span`
+  color: ${({ theme }) => theme.colors.text.tertiary};
+  font: ${({ theme }) => theme.typography.small.font};
+`;
+
+export const ExecutionDetailValue = styled.span`
+  overflow: hidden;
+  color: ${({ theme }) => theme.colors.text.primary};
+  font: ${({ theme }) => theme.typography.caption.font};
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const ExecutionPanelActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
 `;

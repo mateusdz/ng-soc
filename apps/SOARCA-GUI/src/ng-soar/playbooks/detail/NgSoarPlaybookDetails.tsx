@@ -2,6 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 
 import { getLastExecutionSummary } from "@/ng-soar/api/executionSummaries";
 import {
+  createIdentityMap,
+  getIdentities,
+} from "@/ng-soar/api/identities";
+import {
   executionStatusLabels,
   executionStatusVariant,
 } from "@/ng-soar/playbooks/executions/executionStatus";
@@ -33,7 +37,13 @@ type NgSoarPlaybookDetailsProps = {
 };
 
 export function NgSoarPlaybookDetails({ playbook }: NgSoarPlaybookDetailsProps) {
-  const metadata = extractPlaybookMetadata(playbook);
+  const { data: identities = [] } = useQuery({
+    queryKey: ["ng-soar-identities"],
+    queryFn: getIdentities,
+    refetchOnWindowFocus: false,
+  });
+  const identitiesById = createIdentityMap(identities);
+  const metadata = extractPlaybookMetadata(playbook, identitiesById);
   const versionMetadata = getPlaybookVersionMetadata(playbook);
   const { data: lastExecution, isLoading } = useQuery({
     queryKey: ["ng-soar-last-execution", playbook.id],
@@ -52,6 +62,14 @@ export function NgSoarPlaybookDetails({ playbook }: NgSoarPlaybookDetailsProps) 
       <CardBody>
         <DetailsStack>
           <DetailGrid>
+            <DetailItem>
+              <FormLabel>Author</FormLabel>
+              <DetailValue>{metadata.authorName ?? "Unknown author"}</DetailValue>
+            </DetailItem>
+            <DetailItem>
+              <FormLabel>Author identity ID</FormLabel>
+              <DetailValue>{metadata.author ?? "Not available"}</DetailValue>
+            </DetailItem>
             <DetailItem>
               <FormLabel>Version label</FormLabel>
               <DetailValue>{metadata.versionLabel}</DetailValue>

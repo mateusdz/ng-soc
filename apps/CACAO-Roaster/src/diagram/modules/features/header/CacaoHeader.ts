@@ -388,7 +388,7 @@ export default class CacaoHeader {
 		// Dropdown Label in the header menu
 		const entryLabel = document.createElement('p');
 		entryLabel.classList.add('entry__label');
-		entryLabel.innerText = 'INTEGRATIONS';
+		entryLabel.innerText = 'EXECUTE';
 
 		// Creating a dropdown "button" with icon and label
 		const dropdownButton = document.createElement('div');

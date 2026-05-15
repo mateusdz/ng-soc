@@ -46,18 +46,24 @@ Direct development endpoints are also exposed on localhost:
 - `/playbooks/new`
 - `/playbooks/:playbookId`
 - `/playbooks/:playbookId/edit`
-- `/roaster`
-- `/roaster/playbook/:playbookId`
+- `/roaster` (Playbook Editor)
+- `/roaster/playbook/:playbookId` (Playbook Editor for a stored playbook)
 - `/monitoring`
 - `/monitoring/:executionId`
 - `/settings`
+
+Settings includes:
+
+- **Appearance**: UI theme and frontend version.
+- **Platform Operations**: health cards for SOARCA, NG-SOAR API, CACAO Roaster, NG-SOAR frontend, reverse proxy, MongoDB, and Mosquitto.
+- **API Explorer**: embedded themed Swagger UI for NG-SOAR and SOARCA APIs.
 
 ## Main Services
 
 - `soarca-gui`: primary NG-SOAR frontend, extended under `apps/SOARCA-GUI/src/ng-soar`.
 - `cacao-roaster`: CACAO authoring and visual playbook editing surface.
 - `soarca`: SOARCA API and execution engine.
-- `ng-soar-api`: execution-summary persistence and last-execution lookup.
+- `ng-soar-api`: execution-summary persistence, identity resolution, platform health, and API documentation shell.
 - `mongodb`: SOARCA and NG-SOAR persistence.
 - `mosquitto`: MQTT broker used by SOARCA.
 - `reverse-proxy`: single visible entrypoint on `NG_SOAR_PORT`.
@@ -70,7 +76,7 @@ Direct development endpoints are also exposed on localhost:
 4. Search or filter playbooks by text, labels, type, manual steps, version state, modified date, or last execution status.
 5. Open a playbook detail page.
 6. Review SOARCA-GUI workflow visualization plus NG-SOAR metadata and last execution status.
-7. Use `Open in Roaster` or `/roaster/playbook/:playbookId` to inspect/edit the playbook in CACAO Roaster.
+7. Use `Open in Playbook Editor` or `/roaster/playbook/:playbookId` to inspect/edit the playbook in CACAO Roaster.
 8. Import or create a playbook through the existing SOARCA-GUI/Roaster flows.
 9. Run or monitor execution through `/monitoring`.
 10. Use SOARCA-GUI manual input handling for manual runtime steps.
@@ -84,6 +90,9 @@ curl -I http://localhost:8080/dashboard
 curl -I http://localhost:8080/playbooks
 curl -I http://localhost:8080/roaster
 curl -I http://localhost:8080/api/ng-soar/health
+curl -I http://localhost:8080/api/ng-soar/platform/health
+curl -I http://localhost:8080/api/ng-soar/identities
+curl -I http://localhost:8080/api/ng-soar/openapi.json
 curl -I http://localhost:8080/api/soarca/status/
 curl -I http://localhost:8080/_roaster/
 ```
@@ -119,6 +128,7 @@ If the dashboard or playbook pages fail to load:
 
 - Check SOARCA status at `http://localhost:8080/api/soarca/status/`.
 - Check NG-SOAR API status at `http://localhost:8080/api/ng-soar/health`.
+- Check full platform health at `http://localhost:8080/api/ng-soar/platform/health`.
 - Check containers:
 
 ```sh

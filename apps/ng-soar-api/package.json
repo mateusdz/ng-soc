@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "express": "^5.2.1",
-    "mongodb": "^7.0.0"
+    "mongodb": "^7.0.0",
+    "swagger-ui-dist": "^5.32.6"
   }
 }

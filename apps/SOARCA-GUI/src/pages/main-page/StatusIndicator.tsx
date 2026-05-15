@@ -1,47 +1,42 @@
 import { useQuery } from "@tanstack/react-query";
 import { css, styled } from "styled-components";
 
-import { getPingStatus } from "@/api/status";
 import { getVariantColors, ThemeVariant } from "@/components/utils";
+import { getPlatformHealth } from "@/ng-soar/api/platform";
 import { theme } from "@/theme";
 import { pulse } from "@/theme/animations";
 
 export const StatusIndicator: React.FC = () => {
-  const { data, isError, status, isFetching } = useQuery({
-    queryKey: ["pingStatus"],
-    queryFn: async () => {
-      try {
-        const response = await getPingStatus();
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return await response.text();
-      } catch (err) {
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to ping backend";
-        throw new Error(errorMessage);
-      }
-    },
+  const { data, isError, isFetching } = useQuery({
+    queryKey: ["ng-soar-platform-health"],
+    queryFn: getPlatformHealth,
     retry: 1,
     retryDelay: 500,
     refetchInterval: 5000,
     refetchOnWindowFocus: true,
   });
 
-  const isOnline = status === "success" && !isError && data === "pong";
-  const isReconnecting = isFetching && !isOnline;
+  const isOnline = data?.status === "operational" && !isError;
+  const isDegraded = data?.status === "degraded" && !isError;
+  const isReconnecting = isFetching && !isOnline && !isDegraded;
+  const unhealthyServices =
+    data?.services.filter((service) => service.status !== "operational") ?? [];
 
   return (
     <StatusDot
       className="status-indicator" // needed to swap the order when in mobile view. See Main.tsx
       $isOnline={isOnline}
-      $isReconnecting={isReconnecting}
+      $isDegraded={isDegraded || isReconnecting}
       title={
         isOnline
-          ? "Connected to SOARCA!"
-          : isReconnecting
-            ? "Reconnecting to SOARCA..."
-            : "We lost contact with SOARCA!"
+          ? "NG-SOAR platform healthy"
+          : isDegraded
+            ? `NG-SOAR platform degraded: ${unhealthyServices
+                .map((service) => service.name)
+                .join(", ")}`
+            : isReconnecting
+              ? "Checking NG-SOAR platform health..."
+              : "NG-SOAR platform health unavailable"
       }
     />
   );
@@ -49,22 +44,22 @@ export const StatusIndicator: React.FC = () => {
 
 const StatusDot = styled.div<{
   $isOnline: boolean;
-  $isReconnecting: boolean;
+  $isDegraded: boolean;
 }>`
   position: relative;
   width: 10px;
   height: 10px;
   border-radius: ${({ theme }) => theme.radius.full};
 
-  background-color: ${({ $isOnline, $isReconnecting }) =>
+  background-color: ${({ $isOnline, $isDegraded }) =>
     $isOnline
       ? getVariantColors(theme, ThemeVariant.Success).solidBg
-      : $isReconnecting
+      : $isDegraded
         ? getVariantColors(theme, ThemeVariant.Warning).solidBg
         : getVariantColors(theme, ThemeVariant.Error).solidBg};
 
-  animation: ${({ $isOnline, $isReconnecting }) =>
-    $isOnline || $isReconnecting
+  animation: ${({ $isOnline, $isDegraded }) =>
+    $isOnline || $isDegraded
       ? css`
           ${pulse} 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         `

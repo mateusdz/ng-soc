@@ -162,7 +162,7 @@ export default class Soarca {
           <span class="error_message hidden" id="playbook-error-message"></span>
         </div>
         <button id="soarca-cancel" class="dialog__button button--secondary">Cancel</button>
-        <button id="soarca-trigger-playbook" class="dialog__button button--primary">Trigger Playbook</button>
+        <button id="soarca-trigger-playbook" class="dialog__button button--primary">Execute playbook</button>
       </div>
     `;
 	}
@@ -261,8 +261,8 @@ export default class Soarca {
 	private _triggerPlaybook() {
 		this._integrationLog.clearLog();
 		this._integrationLog.addUserLogItem(
-			'Trigger Playbook',
-			`Triggering playbook with playbook id: ${this._playbook.id}`,
+			'Execute playbook',
+			`Executing playbook with playbook id: ${this._playbook.id}`,
 		);
 		fetch(`${this._soarcaUrl}/trigger/playbook`, {
 			method: 'POST',
@@ -278,9 +278,9 @@ export default class Soarca {
 				}
 			})
 			.then(data => {
-				console.log('Successfully Triggered Playbook with ID: ', this._playbook.id);
+				console.log('Successfully executed playbook with ID: ', this._playbook.id);
 				const executionID = (data as ExecutionStatus).execution_id;
-				console.log('The triggeren playbook got the following Execution ID: ', executionID);
+				console.log('The executed playbook got the following Execution ID: ', executionID);
 				this._integrationLog.addSystemLogItem(
 					'Playbook sent for execution',
 					`Execution ID: ${executionID}`,
@@ -288,8 +288,8 @@ export default class Soarca {
 				this._triggerExecutionStatusChecks(executionID);
 			})
 			.catch(error => {
-				console.error('Error while triggering the playbook:', error);
-				this._integrationLog.addSystemLogItem('Failed to trigger playbook', error.message);
+				console.error('Error while executing the playbook:', error);
+				this._integrationLog.addSystemLogItem('Failed to execute playbook', error.message);
 			});
 	}
 

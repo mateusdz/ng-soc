@@ -4,6 +4,10 @@ import {
   ExecutionSummaryByPlaybook,
   ExecutionSummaryStatus,
 } from "@/ng-soar/api/executionSummaries";
+import {
+  IdentityById,
+  resolveIdentityName,
+} from "@/ng-soar/api/identities";
 import { executionStatusLabels } from "@/ng-soar/playbooks/executions/executionStatus";
 import { getPlaybookVersionMetadata } from "@/ng-soar/playbooks/versioning/playbookVersions";
 import { Playbook, Step } from "@/types";
@@ -31,6 +35,7 @@ export type PlaybookFilters = {
 
 export type PlaybookMetadata = {
   author?: string;
+  authorName?: string;
   labels: string[];
   playbookType?: string;
   modifiedAt?: string;
@@ -50,6 +55,11 @@ export type PlaybookMetadata = {
 export type PlaybookSearchRecord = {
   playbook: Playbook;
   metadata: PlaybookMetadata;
+};
+
+export type SelectOption = {
+  label: string;
+  value: string;
 };
 
 export const defaultPlaybookFilters: PlaybookFilters = {
@@ -122,17 +132,22 @@ function compactStrings(values: Array<string | undefined>) {
   return values.filter((value): value is string => Boolean(value && value.trim()));
 }
 
-export function extractPlaybookMetadata(playbook: Playbook): PlaybookMetadata {
-  return extractPlaybookMetadataWithExecution(playbook);
+export function extractPlaybookMetadata(
+  playbook: Playbook,
+  identitiesById: IdentityById = {},
+): PlaybookMetadata {
+  return extractPlaybookMetadataWithExecution(playbook, {}, identitiesById);
 }
 
 function extractPlaybookMetadataWithExecution(
   playbook: Playbook,
   summariesByPlaybook: ExecutionSummaryByPlaybook = {},
+  identitiesById: IdentityById = {},
 ): PlaybookMetadata {
   const labels = playbook.labels ?? [];
   const playbookType = playbook.playbook_types?.[0];
   const author = playbook.created_by;
+  const authorName = resolveIdentityName(author, identitiesById);
   const workflowStepCount = workflowSteps(playbook.workflow).length;
   const versionMetadata = getPlaybookVersionMetadata(playbook);
   const versionLabel = versionMetadata.versionLabel;
@@ -151,6 +166,7 @@ function extractPlaybookMetadataWithExecution(
     playbook.name,
     playbook.description,
     author,
+    authorName,
     playbookType,
     labels.join(" "),
     playbook.created,
@@ -171,6 +187,7 @@ function extractPlaybookMetadataWithExecution(
     playbook.name,
     playbook.description,
     author,
+    authorName,
     playbookType,
     playbook.created,
     playbook.modified,
@@ -184,6 +201,7 @@ function extractPlaybookMetadataWithExecution(
 
   return {
     author,
+    authorName,
     labels,
     playbookType,
     modifiedAt: playbook.modified,
@@ -204,16 +222,37 @@ function extractPlaybookMetadataWithExecution(
 function createSearchRecords(
   playbooks: Playbook[],
   summariesByPlaybook: ExecutionSummaryByPlaybook,
+  identitiesById: IdentityById,
 ): PlaybookSearchRecord[] {
   return playbooks.map((playbook) => ({
     playbook,
-    metadata: extractPlaybookMetadataWithExecution(playbook, summariesByPlaybook),
+    metadata: extractPlaybookMetadataWithExecution(
+      playbook,
+      summariesByPlaybook,
+      identitiesById,
+    ),
   }));
 }
 
 function distinctOptions(values: Array<string | undefined>) {
   return Array.from(new Set(compactStrings(values))).sort((a, b) =>
     a.localeCompare(b, undefined, { sensitivity: "base" }),
+  );
+}
+
+function distinctSelectOptions(records: SelectOption[]) {
+  const optionsByValue = new Map<string, SelectOption>();
+
+  for (const record of records) {
+    if (!record.value.trim()) {
+      continue;
+    }
+
+    optionsByValue.set(record.value, record);
+  }
+
+  return Array.from(optionsByValue.values()).sort((a, b) =>
+    a.label.localeCompare(b.label, undefined, { sensitivity: "base" }),
   );
 }
 
@@ -268,12 +307,13 @@ function filterPlaybooks(records: PlaybookSearchRecord[], filters: PlaybookFilte
 export function useNgSoarPlaybookSearch(
   playbooks: Playbook[],
   summariesByPlaybook: ExecutionSummaryByPlaybook = {},
+  identitiesById: IdentityById = {},
 ) {
   const [filters, setFilters] = useState<PlaybookFilters>(defaultPlaybookFilters);
 
   const searchRecords = useMemo(
-    () => createSearchRecords(playbooks, summariesByPlaybook),
-    [playbooks, summariesByPlaybook],
+    () => createSearchRecords(playbooks, summariesByPlaybook, identitiesById),
+    [playbooks, summariesByPlaybook, identitiesById],
   );
   const filteredRecords = useMemo(
     () => filterPlaybooks(searchRecords, filters),
@@ -292,7 +332,13 @@ export function useNgSoarPlaybookSearch(
   }, [filteredRecords, filters.view]);
 
   const authorOptions = useMemo(
-    () => distinctOptions(searchRecords.map((record) => record.metadata.author)),
+    () =>
+      distinctSelectOptions(
+        searchRecords.map((record) => ({
+          label: record.metadata.authorName ?? record.metadata.author ?? "Unknown author",
+          value: record.metadata.author ?? "",
+        })),
+      ),
     [searchRecords],
   );
   const typeOptions = useMemo(

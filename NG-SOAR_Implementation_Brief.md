@@ -206,16 +206,46 @@ Purpose: demo/reviewer landing page.
 
 Show:
 
-- Total playbooks.
-- Manual-step playbooks.
-- Derived/versioned playbooks.
-- Recently modified playbooks.
-- Recent executions.
-- Last execution status summary.
-- SOARCA runtime status.
-- Quick links to Playbooks, Roaster, and Monitoring.
+- Playbook inventory metrics:
+  - total playbooks
+  - manual-step playbooks
+  - derived/versioned playbooks
+  - recently modified playbooks
+  - validation status counts when available
+- Execution metrics:
+  - recent executions
+  - last execution status summary
+  - running executions
+  - awaiting manual input
+  - failed executions
+- Platform metrics:
+  - SOARCA runtime status
+  - NG-SOAR API health
+  - Roaster availability
+  - MongoDB-backed execution persistence status
+- Quick links to Playbooks, Playbook Editor/Roaster, Monitoring, and Settings.
 
 Keep this robust and modest. Advanced analytics are not required.
+
+Recommended SOAR dashboard metrics:
+
+Business-value metrics:
+
+- Automation coverage: percentage of playbooks that can run without manual steps.
+- Reuse and maturity: total playbooks, derived versions, recently modified playbooks.
+- Operational reliability: success/failure trend and failed executions needing attention.
+- Analyst workload reduction proxy: manual-input count and average manual wait time when available.
+- Readiness/compliance proxy: validated playbooks vs. unvalidated/errored playbooks.
+
+Operational-value metrics:
+
+- Running executions.
+- Awaiting manual input.
+- Failed executions.
+- Last execution per playbook.
+- Top recently changed playbooks.
+- Platform health by component.
+- Reporter sync age and NG-SOAR persistence sync age.
 
 ### 2. Playbook Library
 
@@ -227,7 +257,7 @@ Route:
 
 Base: existing SOARCA-GUI `PlaybooksPage`.
 
-Add from the former NG-SOAR frontend:
+Required:
 
 - Search across extracted metadata.
 - Search across full CACAO JSON.
@@ -248,7 +278,25 @@ Add from the former NG-SOAR frontend:
   - Recently executed
   - Awaiting manual input
 
-The existing SOARCA-GUI visual card/detail style should be preserved and improved rather than replaced wholesale.
+Improve the playbook result table/list:
+
+- Use a denser, scan-friendly professional table/list hybrid.
+- Show meaningful columns/properties:
+  - name
+  - author display name, resolved from identity store
+  - playbook type
+  - labels
+  - version label / derived-from indicator
+  - workflow step count
+  - manual-step indicator
+  - validation status if available
+  - last execution status
+  - created/modified timestamps
+  - severity/priority/impact if present
+- Keep the workflow preview available, but make it secondary and visually cleaner.
+- Avoid showing only raw identity IDs where a display name can be resolved.
+
+The existing SOARCA-GUI detail strengths should be preserved, but the list view should become more information-dense than the initial card-only version.
 
 ### 3. Playbook Detail
 
@@ -313,6 +361,28 @@ Required:
 - Existing playbook URL should load selected SOARCA playbook.
 - `/roaster` should support creating a new playbook in Roaster.
 
+Product direction:
+
+- Rename the navigation item from **Roaster** to **Playbook Editor** for end users.
+- Keep CACAO Roaster as the underlying authoring engine.
+- Rename the current integration action to **Execute playbook** where it starts an execution flow.
+- Do not navigate away from editing too early, because validation errors and last-minute edits are common.
+- Preferred execution UX:
+  - Keep the editor visible.
+  - Open an execution side panel/drawer or split view beside/below the editor.
+  - Show validation status before execution.
+  - Allow execution progress/manual-input state to link into `/monitoring/:executionId`.
+  - Let the user collapse the execution panel and continue editing.
+
+Roaster export/function extraction:
+
+- Identify Roaster functions for PNG export and STIX 2.1 export.
+- Prefer extracting these as reusable modules or callable helper functions rather than duplicating logic.
+- Add playbook detail actions:
+  - export workflow PNG
+  - export STIX 2.1 wrapped CACAO playbook
+- Long-term sharing targets: TAXII, OpenCTI, MISP.
+
 ### 6. Monitoring and Manual Input
 
 Routes:
@@ -340,11 +410,153 @@ Route:
 
 Show:
 
-- SOARCA API health.
-- NG-SOAR API/BFF health.
-- CACAO Roaster route/config.
-- Mongo-backed execution persistence status if feasible.
-- Theme/design controls already present in SOARCA-GUI.
+- Appearance controls already present in SOARCA-GUI.
+- A **Platform Operations** tab for deployment info, status, and health.
+- An **API Explorer** tab for Swagger/OpenAPI developer documentation.
+
+Header status indicator:
+
+- The current green dot only indicates SOARCA ping health (`/api/status/ping` returns `pong`).
+- It does **not** mean every NG-SOAR container is healthy.
+- Replace or augment it with a platform health indicator that can summarize:
+  - SOARCA API
+  - SOARCA-GUI frontend
+  - NG-SOAR API/BFF
+  - CACAO Roaster
+  - MongoDB
+  - Mosquitto
+  - reverse proxy
+
+Platform Operations tab:
+
+- Show one card per service/container.
+- Relevant properties:
+  - service name
+  - role/purpose
+  - health status
+  - public route or internal URL
+  - version/build where available
+  - runtime/mode where available
+  - uptime or last successful check
+  - backing dependencies
+  - last error if unhealthy
+- Initial health sources:
+  - SOARCA: `/api/soarca/status/` and `/api/soarca/status/ping`
+  - NG-SOAR API: `/api/ng-soar/health`
+  - Roaster: proxied `/_roaster/` availability
+  - SOARCA-GUI: loaded frontend bundle/version
+  - MongoDB: via NG-SOAR API health response and SOARCA status if exposed
+  - Mosquitto: initially report configured dependency; add active health endpoint only if needed
+
+API Explorer tab:
+
+- Embed Swagger UI/OpenAPI inside NG-SOAR for authenticated developers.
+- Also keep raw OpenAPI JSON and Swagger endpoints directly reachable through the reverse proxy for tooling.
+- Recommendation: use both.
+  - Embedded API Explorer improves demo/developer discoverability.
+  - Direct endpoints are still better for code generation, CI, and external integration.
+
+Suggested API Explorer content:
+
+- SOARCA API Swagger/OpenAPI.
+- NG-SOAR API OpenAPI for execution summaries, identity store, platform health, and future versioning.
+- Authentication/API-key usage examples once security is added.
+
+### 8. Authentication and API Security
+
+Required:
+
+- Secure the frontend application.
+- Protect backend APIs with API keys initially.
+- Plan for OIDC or another identity provider when moving beyond demo mode.
+
+Recommended staged approach:
+
+1. Demo/dev API key protection for NG-SOAR API.
+   - Require `X-NG-SOAR-API-Key` or `Authorization: Bearer <token>` for mutating endpoints.
+   - Keep health endpoint public or expose a limited public health endpoint.
+   - Configure keys through environment variables.
+2. Frontend login/session.
+   - Use a simple login boundary first if no IdP is ready.
+   - Move to OIDC later for real users.
+3. Reverse proxy protection.
+   - Ensure `/api/ng-soar/*` and sensitive SOARCA endpoints are not openly writable in production-like deployments.
+4. Role-aware authorization later.
+   - Author can edit own playbooks.
+   - Non-author can derive/copy and edit their derived playbook.
+   - Admin can manage identities and system settings.
+
+### 9. Identity Store and Playbook Author Resolution
+
+Need:
+
+- A separate identity store for CACAO identity objects.
+- Playbooks should show author display names instead of raw identity IDs when possible.
+- `created_by` / `created_by_ref` values should resolve to identity records.
+- New playbooks should align author identity with the logged-in user.
+
+Identity object fields to store:
+
+- `type`
+- `spec_version`
+- `id`
+- `created_by_ref`
+- `created`
+- `modified`
+- `name`
+- `description`
+- `roles`
+- `identity_class`
+- `sectors`
+- `contact_information`
+
+Initial NG-SOAR API/BFF endpoints:
+
+```text
+GET    /api/ng-soar/identities
+GET    /api/ng-soar/identities/:id
+POST   /api/ng-soar/identities
+PATCH  /api/ng-soar/identities/:id
+DELETE /api/ng-soar/identities/:id
+```
+
+Frontend integration:
+
+- Add identity cache/query hooks in SOARCA-GUI.
+- Resolve author names in playbook list, filters, badges, and detail.
+- Filters should show identity names but store/use identity IDs.
+- Keep raw identity ID visible in detail for traceability.
+
+Future authorization:
+
+- Logged-in user maps to one identity object.
+- If user identity matches playbook author, allow edit.
+- If not, show **Derive playbook** / **Create editable copy** instead of direct edit.
+
+### 10. Intended Usage Flow
+
+Primary analyst/playbook-engineer flow:
+
+1. Login to NG-SOAR.
+2. Review dashboard for health, failed runs, manual input, and recent playbook changes.
+3. Search/filter playbook library.
+4. Open playbook detail.
+5. Review author, metadata, validation state, execution history, and workflow preview.
+6. Open in Playbook Editor.
+7. Edit/validate playbook in Roaster.
+8. Execute playbook from the editor.
+9. Keep editor visible while execution panel shows status/manual input.
+10. Open full Monitoring detail if deeper execution investigation is needed.
+11. Persist last execution state back to the playbook library/dashboard.
+
+Primary developer/integrator flow:
+
+1. Login to NG-SOAR.
+2. Open Settings.
+3. Review Platform Operations health.
+4. Open API Explorer.
+5. Read Swagger/OpenAPI docs and API-key usage.
+6. Integrate with SOARCA or NG-SOAR API endpoints.
 
 ## Repository Direction
 
@@ -380,8 +592,15 @@ GET    /api/ng-soar/playbooks/:id/last-execution
 Future optional endpoints:
 
 ```text
+GET    /api/ng-soar/openapi.json
+GET    /api/ng-soar/platform/health
 POST   /api/ng-soar/playbooks/:id/versions
 GET    /api/ng-soar/playbooks/:id/versions
+GET    /api/ng-soar/identities
+GET    /api/ng-soar/identities/:id
+POST   /api/ng-soar/identities
+PATCH  /api/ng-soar/identities/:id
+DELETE /api/ng-soar/identities/:id
 ```
 
 Do not duplicate SOARCA playbook CRUD unless versioning or normalization requires it.
@@ -569,14 +788,182 @@ Current status:
 - README now documents the single-frontdoor architecture, main routes, service responsibilities, demo flow, verification commands, and troubleshooting notes.
 - Remaining Phase 10 work is mostly demo-content polish: curated sample playbooks, screenshots if needed, and final thesis/demo wording.
 
+### Phase 11: Settings Platform Operations and API Explorer
+
+Build:
+
+- Replace the single SOARCA-only status settings view with settings tabs:
+  - **Appearance**
+  - **Platform Operations**
+  - **API Explorer**
+- Replace the ambiguous header green dot with a labeled or tooltip-rich platform health indicator.
+- Add service cards for SOARCA, SOARCA-GUI, NG-SOAR API, CACAO Roaster, MongoDB, Mosquitto, and reverse proxy.
+- Add NG-SOAR API endpoint for aggregated platform health where direct browser checks are insufficient.
+- Add or proxy OpenAPI/Swagger docs for SOARCA and NG-SOAR API.
+- Embed Swagger UI in the API Explorer tab while preserving raw OpenAPI endpoints for external tooling.
+
+Acceptance criteria:
+
+- User can tell whether the header status means SOARCA-only or full-platform health.
+- Settings shows health/status/configuration for each relevant service.
+- Developers can discover API endpoints from inside NG-SOAR.
+- Direct OpenAPI URLs remain usable for code generation and external integration.
+
+Current status:
+
+- NG-SOAR API exposes `/api/ng-soar/platform/health`.
+- NG-SOAR API exposes `/api/ng-soar/openapi.json`.
+- Header status indicator now uses the platform health summary instead of SOARCA-only ping.
+- Settings has tabs for Appearance, Platform Operations, and API Explorer.
+- Platform Operations shows service cards for SOARCA, NG-SOAR API, CACAO Roaster, NG-SOAR frontend, reverse proxy, MongoDB, and Mosquitto.
+- API Explorer embeds a themed Swagger UI shell for both NG-SOAR and SOARCA APIs.
+
+### Phase 12: Authentication and API Key Protection
+
+Build:
+
+- Add initial authentication boundary for the frontend.
+- Protect NG-SOAR API mutating endpoints with an API key.
+- Add environment variables for API key configuration.
+- Document API-key usage in API Explorer.
+- Plan OIDC integration for real user identity and later role-based authorization.
+
+Acceptance criteria:
+
+- NG-SOAR API is not openly writable.
+- Frontend requests include required API credentials where appropriate.
+- Health endpoints expose only safe information without authentication.
+- Documentation explains how developers authenticate.
+
+### Phase 13: Identity Store and Author Resolution
+
+Build:
+
+- Add Mongo-backed identity collection in NG-SOAR API.
+- Add CRUD endpoints for CACAO identity objects.
+- Seed or import known identities, including the CACAO TC example if useful for demo data.
+- Add SOARCA-GUI identity query/cache layer.
+- Resolve playbook author IDs into identity display names in list, filters, and detail.
+- Prepare logged-in-user-to-identity mapping for future edit/derive authorization rules.
+
+Acceptance criteria:
+
+- Playbook list and filters show author names, not only identity IDs.
+- Detail still exposes raw identity ID for traceability.
+- New playbook authoring can align with the logged-in user's identity once auth is enabled.
+
+Current status:
+
+- NG-SOAR API exposes Mongo-backed `/api/ng-soar/identities` endpoints.
+- The CACAO TC identity is seeded for demo/reference data if it is not already present.
+- SOARCA-GUI has an identity query/cache layer.
+- Playbook search metadata resolves `created_by` identity IDs to display names for search, badges, filters, and NG-SOAR detail fields.
+
+### Phase 14: Playbook Editor Execution Split View
+
+Build:
+
+- Rename the Roaster navigation item to **Playbook Editor**.
+- Rename execution-related integration action to **Execute playbook**.
+- Plan and implement an execution side panel/split view from the editor route.
+- Validate before execution where possible.
+- Keep editor visible during execution status/manual-input review.
+- Link to full monitoring detail when needed.
+
+Acceptance criteria:
+
+- User does not lose editor context when executing.
+- Execution failures/manual input can be reviewed without abandoning editing.
+- Full monitoring remains available for deep inspection.
+
+Current status:
+
+- Main navigation label is now **Playbook Editor**.
+- CACAO Roaster's SOARCA integration entry uses **Execute** / **Execute playbook** language.
+- NG-SOAR editor host includes an execution companion panel beside Roaster.
+- The panel can execute the stored SOARCA playbook, show latest persisted execution state, and link to monitoring.
+
+### Phase 15: Roaster Export Extraction
+
+Build:
+
+- Locate Roaster PNG export and STIX 2.1 export implementation.
+- Extract or expose reusable functions without duplicating logic.
+- Add playbook detail actions:
+  - export workflow PNG
+  - export STIX 2.1 wrapped CACAO playbook
+- Keep exports consistent with Roaster output.
+
+Acceptance criteria:
+
+- User can export PNG/STIX from SOARCA-GUI playbook detail.
+- Output matches Roaster's existing export behavior.
+- Future TAXII/OpenCTI/MISP sharing remains possible.
+
+### Phase 16: Dashboard Metrics Upgrade
+
+Build:
+
+- Add business-value metrics:
+  - automation coverage
+  - validated vs. unvalidated playbooks
+  - failed execution count/trend
+  - manual-input workload
+  - playbook reuse/versioning activity
+- Add operational metrics:
+  - running executions
+  - awaiting manual input
+  - last execution per playbook
+  - recent failures
+  - platform component health
+  - reporter/persistence sync freshness
+- Keep dashboard concise and action-oriented.
+
+Acceptance criteria:
+
+- Dashboard tells a SOC/demo story, not just raw counts.
+- Metrics link to playbook, monitoring, or settings views where useful.
+- Optional metrics degrade gracefully when data is not available.
+
+### Phase 17: Playbook Library Table Upgrade
+
+Build:
+
+- Replace or enhance the current result list with a denser table/list hybrid.
+- Add columns/properties from the migrated NG-SOAR frontend concept:
+  - name
+  - author display name
+  - type
+  - labels
+  - version/derived indicator
+  - workflow step count
+  - manual-step indicator
+  - validation status
+  - last execution status
+  - created/modified timestamps
+  - severity/priority/impact if present
+- Make workflow preview secondary and cleaner.
+- Ensure new user-provided playbooks scale the UI.
+
+Acceptance criteria:
+
+- Users can scan and compare many playbooks quickly.
+- Search/filter results expose the important CACAO metadata.
+- Author filter uses identity names with identity IDs under the hood.
+
 ## Remaining Polish Backlog
 
-- Improve the workflow preview layout and readability.
+- Settings Platform Operations and API Explorer.
+- Authentication and API key protection.
+- Identity store and author-name resolution.
+- Playbook Editor execution split view.
+- Roaster PNG/STIX export extraction for playbook detail.
+- Dashboard metrics upgrade.
+- Playbook library table upgrade.
 - Roaster host first-pass polish is implemented: NG-SOAR context bar, linked playbook ID, reload, standalone open, playbook detail, and playbook library shortcuts.
 - Decide how deeply to visually merge Roaster into the SOARCA-GUI shell beyond the current embedded host.
 - Consider hiding or reducing Roaster chrome after the embedded flow is stable.
 - Add richer persisted playbook version history if the demo needs it.
-- Refine dashboard cards after testing with real demo data.
 - Prepare 2-3 curated CACAO playbooks for the final demo.
 - Prepare one manual-input execution scenario for the final demo.
 - Align the SOARCA-GUI design system with final NG-SOAR branding.

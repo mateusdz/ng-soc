@@ -2,13 +2,13 @@ import {
   Activity,
   BookOpen,
   FilePlusCorner,
-  Flame,
   Home,
   LayoutDashboard,
   LucideIcon,
   Menu,
   Settings,
   ShieldCheck,
+  SquarePen,
   X,
 } from "lucide-react";
 import { useState } from "react";
@@ -61,7 +61,7 @@ const NAV_ROUTES: NavRoute[] = [
     label: "Playbooks",
     icon: LayoutDashboard,
   },
-  { path: PATHS.ROASTER.BASE, label: "Roaster", icon: Flame },
+  { path: PATHS.ROASTER.BASE, label: "Playbook Editor", icon: SquarePen },
   { path: PATHS.MONITORING.BASE, label: "Monitoring", icon: Activity },
   { path: PATHS.SETTINGS, label: "Settings", icon: Settings },
 ];

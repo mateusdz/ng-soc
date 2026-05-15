@@ -17,6 +17,9 @@ export function NgSoarPlaybookMetadataBadges({ metadata }: PlaybookMetadataBadge
       {metadata.playbookType && (
         <Badge $variant={ThemeVariant.Info}>{metadata.playbookType}</Badge>
       )}
+      {metadata.authorName && (
+        <Badge $variant={ThemeVariant.Secondary}>{metadata.authorName}</Badge>
+      )}
       {metadata.hasManualSteps && (
         <Badge $variant={ThemeVariant.Warning}>manual</Badge>
       )}
