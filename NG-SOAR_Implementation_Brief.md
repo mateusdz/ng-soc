@@ -557,10 +557,29 @@ Build:
 - Add architecture diagram.
 - Add demo script.
 - Add troubleshooting notes.
+- Record known limitations and remaining polish backlog.
 
 Acceptance criteria:
 
 - A reviewer can start the stack and follow the intended demo without extra explanation.
+- README documents the main services, routes, verification commands, and common troubleshooting steps.
+
+Current status:
+
+- README now documents the single-frontdoor architecture, main routes, service responsibilities, demo flow, verification commands, and troubleshooting notes.
+- Remaining Phase 10 work is mostly demo-content polish: curated sample playbooks, screenshots if needed, and final thesis/demo wording.
+
+## Remaining Polish Backlog
+
+- Improve the workflow preview layout and readability.
+- Roaster host first-pass polish is implemented: NG-SOAR context bar, linked playbook ID, reload, standalone open, playbook detail, and playbook library shortcuts.
+- Decide how deeply to visually merge Roaster into the SOARCA-GUI shell beyond the current embedded host.
+- Consider hiding or reducing Roaster chrome after the embedded flow is stable.
+- Add richer persisted playbook version history if the demo needs it.
+- Refine dashboard cards after testing with real demo data.
+- Prepare 2-3 curated CACAO playbooks for the final demo.
+- Prepare one manual-input execution scenario for the final demo.
+- Align the SOARCA-GUI design system with final NG-SOAR branding.
 
 ## Definition of Done
 
