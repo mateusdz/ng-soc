@@ -674,14 +674,24 @@ Build:
 
 - Keep migrated NG-SOAR metadata extraction/search/filter utilities under `apps/SOARCA-GUI/src/ng-soar`.
 - Merge them into SOARCA-GUI `PlaybooksPage`.
-- Preserve SOARCA-GUI’s existing card/detail visual style.
+- Preserve SOARCA-GUI’s existing detail visual style while making search results denser.
 - Add saved views.
 
 Acceptance criteria:
 
 - Playbook search works across metadata and full CACAO JSON.
-- User can filter by type, labels, author, manual step, validation status, modified date, and last execution status when available.
+- User can filter by type, author, manual step, validation status, and execution status when available.
+- Labels are searched through the free-text metadata/CACAO JSON search instead of a fixed dropdown.
 - Existing import/create/detail flows remain intact.
+
+Current status:
+
+- Playbook search results use a scan-friendly table backed by the NG-SOAR search metadata component.
+- Columns show CACAO properties including playbook name/description, resolved author display name, playbook type, labels, modified timestamp, workflow step count, playbook processing summary, severity/priority/impact, validity/executable state, and last execution status.
+- Result columns are sortable.
+- Type filtering uses the CACAO playbook type vocabulary: attack, detection, engagement, investigation, mitigation, notification, prevention, and remediation.
+- Author display prefers identity first name + last name for user identities, falling back to the CACAO identity name for organization identities.
+- Row click and the Open action route to the existing SOARCA-GUI playbook detail view.
 
 ### Phase 4: Enrich Playbook Detail
 
@@ -697,6 +707,15 @@ Acceptance criteria:
 - Detail page keeps the existing SOARCA-GUI strengths.
 - User sees richer NG-SOAR metadata and persisted last execution state.
 - User can move from detail to Roaster and monitoring.
+
+Current status:
+
+- Playbook detail uses an NG-SOAR-owned CACAO metadata panel beside the existing workflow visualization.
+- Metadata is grouped into overview, identity/classification, lifecycle/versioning, risk/readiness, processing summary/resources, and applicability/references.
+- Detail shows resolved author names, raw identifiers where traceability matters, validity/executable state, revoked state, CACAO playbook type/activity fields, playbook processing summary, risk scores, resource counts, external references, and persisted execution status.
+- Author and external references can be expanded to inspect their full source objects without crowding the default view.
+- Playbook processing summary is inferred on SOARCA-GUI import/update and Roaster save-to-NG-SOAR. Existing author-provided summary values are preserved.
+- Detail includes a **Populate summary** action when a stored playbook has no `playbook_processing_summary`.
 
 ### Phase 5: Import/Create to Roaster Handoff
 
@@ -817,6 +836,7 @@ Current status:
 - Settings has tabs for Appearance, Platform Operations, and API Explorer.
 - Platform Operations shows service cards for SOARCA, NG-SOAR API, CACAO Roaster, NG-SOAR frontend, reverse proxy, MongoDB, and Mosquitto.
 - API Explorer embeds a themed Swagger UI shell for both NG-SOAR and SOARCA APIs.
+- API Explorer follows the resolved application theme, including light mode and automatic system-theme mode.
 
 ### Phase 12: Authentication and API Key Protection
 
@@ -882,6 +902,7 @@ Current status:
 - CACAO Roaster's SOARCA integration entry uses **Execute** / **Execute playbook** language.
 - NG-SOAR editor host includes an execution companion panel beside Roaster.
 - The panel can execute the stored SOARCA playbook, show latest persisted execution state, and link to monitoring.
+- Roaster exposes a **Save to NG-SOAR** action that persists the current CACAO playbook through SOARCA's playbook API into the shared playbook database.
 
 ### Phase 15: Roaster Export Extraction
 
@@ -937,7 +958,7 @@ Build:
   - labels
   - version/derived indicator
   - workflow step count
-  - manual-step indicator
+  - manualplay-step indicator
   - validation status
   - last execution status
   - created/modified timestamps
@@ -950,6 +971,11 @@ Acceptance criteria:
 - Users can scan and compare many playbooks quickly.
 - Search/filter results expose the important CACAO metadata.
 - Author filter uses identity names with identity IDs under the hood.
+
+Current status:
+
+- `/playbooks/new` supports bulk import of multiple CACAO JSON playbooks.
+- Bulk import validates each file client-side, skips invalid files, and writes valid playbooks through SOARCA's playbook API.
 
 ## Remaining Polish Backlog
 

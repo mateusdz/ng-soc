@@ -6,6 +6,7 @@ import {
   CardTitle,
   Text,
 } from "@/components";
+import { useThemeMode } from "@/theme";
 
 import {
   ApiExplorerHeaderBody,
@@ -43,7 +44,9 @@ const apiExplorerTargets: Record<
 export const NgSoarApiExplorerPanel: React.FC = () => {
   const [activeApi, setActiveApi] =
     React.useState<ApiExplorerTarget>("ng-soar");
+  const { resolved } = useThemeMode();
   const activeTarget = apiExplorerTargets[activeApi];
+  const iframeSrc = `${activeTarget.src}?theme=${resolved}`;
 
   return (
     <SettingsStack>
@@ -69,9 +72,9 @@ export const NgSoarApiExplorerPanel: React.FC = () => {
           </ApiSwitcher>
         </ApiExplorerHeaderBody>
         <ApiFrame
-          key={activeTarget.src}
+          key={iframeSrc}
           title={activeTarget.title}
-          src={activeTarget.src}
+          src={iframeSrc}
         />
       </CardContainer>
     </SettingsStack>

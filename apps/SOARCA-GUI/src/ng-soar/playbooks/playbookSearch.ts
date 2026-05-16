@@ -9,6 +9,7 @@ import {
   resolveIdentityName,
 } from "@/ng-soar/api/identities";
 import { executionStatusLabels } from "@/ng-soar/playbooks/executions/executionStatus";
+import { getPlaybookSummaryFeatures } from "@/ng-soar/playbooks/playbookProcessingSummary";
 import { getPlaybookVersionMetadata } from "@/ng-soar/playbooks/versioning/playbookVersions";
 import { Playbook, Step } from "@/types";
 
@@ -26,11 +27,8 @@ export type PlaybookFilters = {
   view: PlaybookSavedView;
   author: string;
   playbookType: string;
-  label: string;
   manualStep: string;
   executionStatus: string;
-  modifiedFrom: string;
-  modifiedTo: string;
 };
 
 export type PlaybookMetadata = {
@@ -47,6 +45,9 @@ export type PlaybookMetadata = {
   versionLineageLabel: string;
   lastExecutionStatus?: ExecutionSummaryStatus;
   lastExecutionAt?: string;
+  isValid: boolean;
+  isExecutable: boolean;
+  summaryFeatures: string[];
   versionLabel: string;
   searchableText: string;
   exactFields: string[];
@@ -68,11 +69,8 @@ export const defaultPlaybookFilters: PlaybookFilters = {
   view: "all",
   author: "",
   playbookType: "",
-  label: "",
   manualStep: "",
   executionStatus: "",
-  modifiedFrom: "",
-  modifiedTo: "",
 };
 
 export const savedViews: Array<{ label: string; value: PlaybookSavedView }> = [
@@ -81,6 +79,25 @@ export const savedViews: Array<{ label: string; value: PlaybookSavedView }> = [
   { label: "Recently modified", value: "recently-modified" },
   { label: "Derived versions", value: "derived-versions" },
 ];
+
+export const playbookTypeOptions = [
+  { label: "Attack", value: "attack" },
+  { label: "Detection", value: "detection" },
+  { label: "Engagement", value: "engagement" },
+  { label: "Investigation", value: "investigation" },
+  { label: "Mitigation", value: "mitigation" },
+  { label: "Notification", value: "notification" },
+  { label: "Prevention", value: "prevention" },
+  { label: "Remediation", value: "remediation" },
+];
+
+export const playbookTypeLabels = playbookTypeOptions.reduce<Record<string, string>>(
+  (labels, option) => {
+    labels[option.value] = option.label;
+    return labels;
+  },
+  {},
+);
 
 function normalize(value?: string) {
   return value?.trim().toLowerCase() ?? "";
@@ -112,24 +129,24 @@ function workflowSteps(workflow?: Record<string, Step>) {
   return workflow ? Object.values(workflow) : [];
 }
 
-function isOnOrAfter(value: string | undefined, boundary: string) {
-  if (!value || !boundary) {
-    return true;
-  }
-
-  return value.slice(0, 10) >= boundary;
-}
-
-function isOnOrBefore(value: string | undefined, boundary: string) {
-  if (!value || !boundary) {
-    return true;
-  }
-
-  return value.slice(0, 10) <= boundary;
-}
-
 function compactStrings(values: Array<string | undefined>) {
   return values.filter((value): value is string => Boolean(value && value.trim()));
+}
+
+function isValidPlaybook(playbook: Playbook) {
+  return Boolean(
+    playbook.type === "playbook" &&
+      playbook.id &&
+      playbook.name &&
+      playbook.spec_version &&
+      playbook.workflow_start &&
+      playbook.workflow &&
+      typeof playbook.workflow === "object",
+  );
+}
+
+function isExecutablePlaybook(playbook: Playbook) {
+  return isValidPlaybook(playbook) && Boolean(playbook.workflow[playbook.workflow_start]);
 }
 
 export function extractPlaybookMetadata(
@@ -160,6 +177,9 @@ function extractPlaybookMetadataWithExecution(
   const lastExecutionLabel = lastExecutionStatus
     ? executionStatusLabels[lastExecutionStatus]
     : undefined;
+  const summaryFeatures = getPlaybookSummaryFeatures(playbook);
+  const isValid = isValidPlaybook(playbook);
+  const isExecutable = isExecutablePlaybook(playbook);
 
   const searchableText = [
     playbook.id,
@@ -177,6 +197,9 @@ function extractPlaybookMetadataWithExecution(
     lastExecutionStatus,
     lastExecutionLabel,
     lastExecutionAt,
+    isValid ? "valid" : "invalid",
+    isExecutable ? "executable" : "not executable",
+    summaryFeatures.join(" "),
     JSON.stringify(playbook),
   ]
     .join(" ")
@@ -196,6 +219,9 @@ function extractPlaybookMetadataWithExecution(
     ...versionMetadata.parentIds,
     lastExecutionStatus,
     lastExecutionLabel,
+    isValid ? "valid" : "invalid",
+    isExecutable ? "executable" : "not executable",
+    ...summaryFeatures,
     ...labels,
   ]).map(normalize);
 
@@ -213,6 +239,9 @@ function extractPlaybookMetadataWithExecution(
     versionLineageLabel: versionMetadata.lineageLabel,
     lastExecutionStatus,
     lastExecutionAt,
+    isValid,
+    isExecutable,
+    summaryFeatures,
     versionLabel,
     searchableText,
     exactFields,
@@ -232,12 +261,6 @@ function createSearchRecords(
       identitiesById,
     ),
   }));
-}
-
-function distinctOptions(values: Array<string | undefined>) {
-  return Array.from(new Set(compactStrings(values))).sort((a, b) =>
-    a.localeCompare(b, undefined, { sensitivity: "base" }),
-  );
 }
 
 function distinctSelectOptions(records: SelectOption[]) {
@@ -267,8 +290,9 @@ function filterPlaybooks(records: PlaybookSearchRecord[], filters: PlaybookFilte
       (filters.view === "derived-versions" && metadata.isDerivedVersion);
 
     const matchesAuthor = !filters.author || metadata.author === filters.author;
-    const matchesType = !filters.playbookType || metadata.playbookType === filters.playbookType;
-    const matchesLabel = !filters.label || metadata.labels.includes(filters.label);
+    const matchesType =
+      !filters.playbookType ||
+      normalize(metadata.playbookType) === filters.playbookType;
     const matchesManual =
       !filters.manualStep ||
       (filters.manualStep === "yes" && metadata.hasManualSteps) ||
@@ -276,8 +300,6 @@ function filterPlaybooks(records: PlaybookSearchRecord[], filters: PlaybookFilte
     const matchesExecutionStatus =
       !filters.executionStatus ||
       metadata.lastExecutionStatus === filters.executionStatus;
-    const matchesModifiedFrom = isOnOrAfter(metadata.modifiedAt, filters.modifiedFrom);
-    const matchesModifiedTo = isOnOrBefore(metadata.modifiedAt, filters.modifiedTo);
     const matchesQuery =
       !query ||
       (filters.searchMode === "exact"
@@ -288,11 +310,8 @@ function filterPlaybooks(records: PlaybookSearchRecord[], filters: PlaybookFilte
       matchesView &&
       matchesAuthor &&
       matchesType &&
-      matchesLabel &&
       matchesManual &&
       matchesExecutionStatus &&
-      matchesModifiedFrom &&
-      matchesModifiedTo &&
       matchesQuery
     );
   });
@@ -335,21 +354,12 @@ export function useNgSoarPlaybookSearch(
     () =>
       distinctSelectOptions(
         searchRecords.map((record) => ({
-          label: record.metadata.authorName ?? record.metadata.author ?? "Unknown author",
+          label: record.metadata.authorName ?? "Unknown author",
           value: record.metadata.author ?? "",
         })),
       ),
     [searchRecords],
   );
-  const typeOptions = useMemo(
-    () => distinctOptions(searchRecords.map((record) => record.metadata.playbookType)),
-    [searchRecords],
-  );
-  const labelOptions = useMemo(
-    () => distinctOptions(searchRecords.flatMap((record) => record.metadata.labels)),
-    [searchRecords],
-  );
-
   const setFilter = (key: keyof PlaybookFilters, value: string) => {
     setFilters((current) => ({ ...current, [key]: value }));
   };
@@ -357,11 +367,10 @@ export function useNgSoarPlaybookSearch(
   return {
     authorOptions,
     filters,
-    labelOptions,
     resetFilters: () => setFilters(defaultPlaybookFilters),
     searchRecords,
     setFilter,
     sortedRecords,
-    typeOptions,
+    typeOptions: playbookTypeOptions,
   };
 }

@@ -85,3 +85,66 @@ export const FileName = styled.div`
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
 `;
+
+export const BulkImportPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+`;
+
+export const BulkImportDropZone = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.sm};
+  min-height: 12rem;
+  width: 100%;
+  padding: ${({ theme }) => theme.spacing["2xl"]};
+  border: 2px dashed ${({ theme }) => theme.colors.border.medium};
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  cursor: pointer;
+  font: ${({ theme }) => theme.typography.bodyMedium.font};
+  transition: all ${({ theme }) => theme.transitions.base};
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.info.border};
+    background: ${({ theme }) => theme.colors.info.bg};
+  }
+
+  &:disabled {
+    opacity: ${({ theme }) => theme.interactions.disabledOpacity};
+    cursor: not-allowed;
+  }
+`;
+
+export const BulkImportList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.sm};
+`;
+
+export const BulkImportItem = styled.div<{ $hasError: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: ${({ theme }) => theme.spacing.md};
+  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+  border: 1px solid
+    ${({ $hasError, theme }) =>
+      $hasError ? theme.colors.error.border : theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ $hasError, theme }) =>
+    $hasError ? theme.colors.error.bg : theme.colors.background.primary};
+  color: ${({ theme }) => theme.colors.text.primary};
+  font: ${({ theme }) => theme.typography.caption.font};
+`;
+
+export const BulkImportMeta = styled.span`
+  overflow: hidden;
+  color: ${({ theme }) => theme.colors.text.secondary};
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;

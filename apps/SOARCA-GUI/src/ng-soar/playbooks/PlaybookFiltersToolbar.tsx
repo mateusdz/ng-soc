@@ -9,15 +9,13 @@ import {
   ThemeVariant,
 } from "@/components";
 
-import { savedViews, useNgSoarPlaybookSearch } from "./playbookSearch";
+import { useNgSoarPlaybookSearch } from "./playbookSearch";
 import { executionStatusOptions } from "./executions/executionStatus";
 import {
   FilterField,
   FilterGrid,
   FilterSummary,
   PlaybookToolbar,
-  SavedViewButton,
-  SavedViewRow,
 } from "./PlaybookFiltersToolbar.styles";
 
 type PlaybookSearchState = ReturnType<typeof useNgSoarPlaybookSearch>;
@@ -30,7 +28,6 @@ export function NgSoarPlaybookFiltersToolbar({ search }: PlaybookFiltersToolbarP
   const {
     authorOptions,
     filters,
-    labelOptions,
     resetFilters,
     searchRecords,
     setFilter,
@@ -40,19 +37,6 @@ export function NgSoarPlaybookFiltersToolbar({ search }: PlaybookFiltersToolbarP
 
   return (
     <PlaybookToolbar>
-      <SavedViewRow>
-        {savedViews.map((view) => (
-          <SavedViewButton
-            key={view.value}
-            $active={filters.view === view.value}
-            onClick={() => setFilter("view", view.value)}
-            type="button"
-          >
-            {view.label}
-          </SavedViewButton>
-        ))}
-      </SavedViewRow>
-
       <FilterGrid>
         <FilterField>
           Search
@@ -88,22 +72,7 @@ export function NgSoarPlaybookFiltersToolbar({ search }: PlaybookFiltersToolbarP
             $value={filters.playbookType}
             $onChange={(value) => setFilter("playbookType", value)}
             $placeholder="Any type"
-            $options={typeOptions.map((type) => ({
-              label: type,
-              value: type,
-            }))}
-          />
-        </FilterField>
-        <FilterField>
-          Label
-          <Select
-            $value={filters.label}
-            $onChange={(value) => setFilter("label", value)}
-            $placeholder="Any label"
-            $options={labelOptions.map((label) => ({
-              label,
-              value: label,
-            }))}
+            $options={typeOptions}
           />
         </FilterField>
         <FilterField>
@@ -119,28 +88,12 @@ export function NgSoarPlaybookFiltersToolbar({ search }: PlaybookFiltersToolbarP
           />
         </FilterField>
         <FilterField>
-          Last execution
+          Rust Execution Status
           <Select
             $value={filters.executionStatus}
             $onChange={(value) => setFilter("executionStatus", value)}
             $placeholder="Any status"
             $options={executionStatusOptions}
-          />
-        </FilterField>
-        <FilterField>
-          Modified from
-          <Input
-            type="date"
-            value={filters.modifiedFrom}
-            onChange={(event) => setFilter("modifiedFrom", event.target.value)}
-          />
-        </FilterField>
-        <FilterField>
-          Modified to
-          <Input
-            type="date"
-            value={filters.modifiedTo}
-            onChange={(event) => setFilter("modifiedTo", event.target.value)}
           />
         </FilterField>
       </FilterGrid>

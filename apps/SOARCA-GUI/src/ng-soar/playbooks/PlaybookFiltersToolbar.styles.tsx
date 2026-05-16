@@ -7,33 +7,6 @@ export const PlaybookToolbar = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
-export const SavedViewRow = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing.sm};
-`;
-
-export const SavedViewButton = styled.button<{ $active?: boolean }>`
-  border: 1px solid
-    ${({ $active, theme }) =>
-      $active ? theme.colors.primary.border : theme.colors.border.medium};
-  border-radius: ${({ theme }) => theme.radius.md};
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.primary.bg : theme.colors.background.primary};
-  color: ${({ $active, theme }) =>
-    $active ? theme.colors.primary.hover : theme.colors.text.secondary};
-  cursor: pointer;
-  font: ${({ theme }) => theme.typography.caption.font};
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
-  transition: all ${({ theme }) => theme.transitions.base};
-
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary.border};
-    color: ${({ theme }) => theme.colors.primary.hover};
-    background: ${({ theme }) => theme.colors.primary.bg};
-  }
-`;
-
 export const FilterGrid = styled.div`
   display: grid;
   grid-template-columns: minmax(220px, 2fr) repeat(5, minmax(140px, 1fr));

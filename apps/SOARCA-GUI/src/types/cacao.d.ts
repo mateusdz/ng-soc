@@ -12,6 +12,20 @@ export type ExternalReferences = {
   url?: string;
 };
 
+export type PlaybookProcessingSummary = {
+  manual_playbook?: boolean;
+  external_playbooks?: boolean;
+  parallel_processing?: boolean;
+  if_logic?: boolean;
+  while_logic?: boolean;
+  switch_logic?: boolean;
+  temporal_logic?: boolean;
+  data_markings?: boolean;
+  digital_signatures?: boolean;
+  countersigned_signatures?: boolean;
+  extensions?: boolean;
+};
+
 export type Contact = {
   contact_details?: string;
   email?: Record<string, string>;
@@ -189,14 +203,20 @@ export type Playbook = {
   markings?: string[];
   modified: ISODateString;
   name: string;
+  playbook_activities?: string[];
   playbook_extensions?: Extensions;
+  playbook_processing_summary?: PlaybookProcessingSummary;
   playbook_types?: string[]; // e.g. investigation
   playbook_variables?: Variables;
   priority?: number;
+  related_to?: string[];
+  revoked?: boolean;
   severity?: number;
+  signatures?: unknown[];
   spec_version: string; // cacao-2.0
   target_definitions?: AgentTargets;
   type: string; // playbook
+  industry_sectors?: string[];
   valid_from?: ISODateString;
   valid_until?: ISODateString;
   workflow: Record<string, Step>;

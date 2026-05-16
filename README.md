@@ -56,7 +56,7 @@ Settings includes:
 
 - **Appearance**: UI theme and frontend version.
 - **Platform Operations**: health cards for SOARCA, NG-SOAR API, CACAO Roaster, NG-SOAR frontend, reverse proxy, MongoDB, and Mosquitto.
-- **API Explorer**: embedded themed Swagger UI for NG-SOAR and SOARCA APIs.
+- **API Explorer**: embedded themed Swagger UI for NG-SOAR and SOARCA APIs, following the selected application theme.
 
 ## Main Services
 
@@ -77,7 +77,7 @@ Settings includes:
 5. Open a playbook detail page.
 6. Review SOARCA-GUI workflow visualization plus NG-SOAR metadata and last execution status.
 7. Use `Open in Playbook Editor` or `/roaster/playbook/:playbookId` to inspect/edit the playbook in CACAO Roaster.
-8. Import or create a playbook through the existing SOARCA-GUI/Roaster flows.
+8. Import one or many CACAO JSON playbooks, or save from Playbook Editor using `Save to NG-SOAR`.
 9. Run or monitor execution through `/monitoring`.
 10. Use SOARCA-GUI manual input handling for manual runtime steps.
 11. Return to the dashboard or playbook list to confirm persisted execution status.

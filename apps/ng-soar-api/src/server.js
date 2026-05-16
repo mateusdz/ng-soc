@@ -87,7 +87,32 @@ const ngSoarOpenApi = {
   }
 };
 
-function swaggerHtml({ title, specUrl }) {
+function swaggerHtml({ title, specUrl, theme = "dark" }) {
+  const isLight = theme === "light";
+  const colors = isLight
+    ? {
+        page: "#ffffff",
+        surface: "#f9fafb",
+        surfaceAlt: "#f3f4f6",
+        panel: "#ffffff",
+        text: "#1f2937",
+        textMuted: "#4b5563",
+        border: "#d1d5db",
+        versionBg: "#e5e7eb",
+        buttonText: "#2563eb"
+      }
+    : {
+        page: "#101827",
+        surface: "#111827",
+        surfaceAlt: "#1f2937",
+        panel: "#101827",
+        text: "#e5e7eb",
+        textMuted: "#cbd5e1",
+        border: "#334155",
+        versionBg: "#334155",
+        buttonText: "#93c5fd"
+      };
+
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -96,17 +121,17 @@ function swaggerHtml({ title, specUrl }) {
     <title>${title}</title>
     <link rel="stylesheet" href="./swagger-ui.css" />
     <style>
-      :root { color-scheme: dark; }
+      :root { color-scheme: ${isLight ? "light" : "dark"}; }
       html,
       body {
         margin: 0;
-        background: #101827;
-        color: #e5e7eb;
+        background: ${colors.page};
+        color: ${colors.text};
       }
 
       .swagger-ui {
-        background: #101827;
-        color: #e5e7eb;
+        background: ${colors.page};
+        color: ${colors.text};
         font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       }
 
@@ -122,12 +147,12 @@ function swaggerHtml({ title, specUrl }) {
       .swagger-ui .information-container,
       .swagger-ui .scheme-container,
       .swagger-ui section.models {
-        background: #101827;
+        background: ${colors.panel};
       }
 
       .swagger-ui .scheme-container {
-        border-top: 1px solid #334155;
-        border-bottom: 1px solid #334155;
+        border-top: 1px solid ${colors.border};
+        border-bottom: 1px solid ${colors.border};
         box-shadow: none;
       }
 
@@ -149,7 +174,7 @@ function swaggerHtml({ title, specUrl }) {
       .swagger-ui h3,
       .swagger-ui h4,
       .swagger-ui h5 {
-        color: #e5e7eb;
+        color: ${colors.text};
       }
 
       .swagger-ui .info .base-url,
@@ -159,13 +184,13 @@ function swaggerHtml({ title, specUrl }) {
       .swagger-ui .parameter__in,
       .swagger-ui .markdown p,
       .swagger-ui .opblock .opblock-summary-description {
-        color: #cbd5e1;
+        color: ${colors.textMuted};
       }
 
       .swagger-ui .info .title small,
       .swagger-ui .info .title small pre {
-        background: #334155;
-        color: #e5e7eb;
+        background: ${colors.versionBg};
+        color: ${colors.text};
       }
 
       .swagger-ui .opblock,
@@ -174,8 +199,8 @@ function swaggerHtml({ title, specUrl }) {
       .swagger-ui .responses-inner,
       .swagger-ui .opblock-body pre,
       .swagger-ui .highlight-code {
-        background: #111827;
-        border-color: #334155;
+        background: ${colors.surface};
+        border-color: ${colors.border};
         box-shadow: none;
       }
 
@@ -183,11 +208,11 @@ function swaggerHtml({ title, specUrl }) {
       .swagger-ui .opblock-section-header,
       .swagger-ui .responses-table,
       .swagger-ui table tbody tr td {
-        border-color: #334155;
+        border-color: ${colors.border};
       }
 
       .swagger-ui .opblock-section-header {
-        background: #1f2937;
+        background: ${colors.surfaceAlt};
         box-shadow: none;
       }
 
@@ -215,14 +240,14 @@ function swaggerHtml({ title, specUrl }) {
       .swagger-ui input,
       .swagger-ui select,
       .swagger-ui textarea {
-        background: #0f172a;
-        border-color: #475569;
-        color: #e5e7eb;
+        background: ${colors.panel};
+        border-color: ${colors.border};
+        color: ${colors.text};
       }
 
       .swagger-ui .btn {
         border-color: #3b82f6;
-        color: #93c5fd;
+        color: ${colors.buttonText};
       }
 
       .swagger-ui .btn.execute {
@@ -233,7 +258,7 @@ function swaggerHtml({ title, specUrl }) {
 
       .swagger-ui svg,
       .swagger-ui .model-toggle:after {
-        filter: invert(1) brightness(1.8);
+        filter: ${isLight ? "none" : "invert(1) brightness(1.8)"};
       }
     </style>
   </head>
@@ -407,6 +432,14 @@ function normalizeIdentity(value, fallbackId) {
     created: normalizeDate(value.created) ?? now,
     modified: normalizeDate(value.modified) ?? now,
     name,
+    first_name:
+      typeof value.first_name === "string" && value.first_name.trim()
+        ? value.first_name.trim()
+        : undefined,
+    last_name:
+      typeof value.last_name === "string" && value.last_name.trim()
+        ? value.last_name.trim()
+        : undefined,
     description:
       typeof value.description === "string" && value.description.trim()
         ? value.description.trim()
@@ -659,17 +692,19 @@ app.get("/swagger", (_request, response) => {
   response.redirect("/swagger/index.html");
 });
 
-app.get("/swagger/index.html", (_request, response) => {
+app.get("/swagger/index.html", (request, response) => {
   response.type("html").send(swaggerHtml({
     title: "NG-SOAR API Swagger UI",
-    specUrl: "/api/ng-soar/openapi.json"
+    specUrl: "/api/ng-soar/openapi.json",
+    theme: request.query.theme === "light" ? "light" : "dark"
   }));
 });
 
-app.get("/swagger/soarca.html", (_request, response) => {
+app.get("/swagger/soarca.html", (request, response) => {
   response.type("html").send(swaggerHtml({
     title: "SOARCA API Swagger UI",
-    specUrl: "/api/soarca/swagger/doc.json"
+    specUrl: "/api/soarca/swagger/doc.json",
+    theme: request.query.theme === "light" ? "light" : "dark"
   }));
 });
 

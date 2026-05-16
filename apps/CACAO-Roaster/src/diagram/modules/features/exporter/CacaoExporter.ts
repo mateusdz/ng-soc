@@ -145,11 +145,11 @@ export default class CacaoExporter {
 			this._playbookHandler.initialPlaybook = this._playbookHandler.playbook;
 
 			cacaoDialog.showAlert(
-				'Saved playbook version',
-				`Created ${savedPlaybook.id} in SOARCA.`,
+				'Saved playbook to NG-SOAR',
+				`Stored ${savedPlaybook.id} in the SOARCA playbook database.`,
 			);
 		} catch (e: any) {
-			cacaoDialog.showAlert('Error when saving playbook version to SOARCA', e.message);
+			cacaoDialog.showAlert('Error when saving playbook to NG-SOAR', e.message);
 		}
 	}
 

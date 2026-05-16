@@ -1,4 +1,5 @@
 import type { Playbook } from '../../lib/cacao2-js/src/Playbook';
+import { ensurePlaybookProcessingSummary } from './playbookProcessingSummary';
 
 const DEFAULT_SOARCA_API_BASE = '/api/soarca';
 
@@ -37,7 +38,7 @@ export async function createSoarcaPlaybook(playbook: Playbook): Promise<Playbook
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(playbook),
+		body: JSON.stringify(ensurePlaybookProcessingSummary(playbook)),
 	});
 
 	if (!response.ok) {

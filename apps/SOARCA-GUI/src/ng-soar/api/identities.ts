@@ -6,6 +6,8 @@ export type CacaoIdentity = {
   created?: string;
   modified?: string;
   name: string;
+  first_name?: string;
+  last_name?: string;
   description?: string;
   roles?: string[];
   identity_class?: string;
@@ -40,5 +42,10 @@ export function resolveIdentityName(identityId: string | undefined, identities: 
     return undefined;
   }
 
-  return identities[identityId]?.name ?? identityId;
+  const identity = identities[identityId];
+  const personName = [identity?.first_name, identity?.last_name]
+    .filter((part): part is string => Boolean(part?.trim()))
+    .join(" ");
+
+  return personName || identity?.name;
 }

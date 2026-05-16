@@ -29,10 +29,6 @@ import { PATHS } from "@/utils";
 
 import { generatePlaybookFilename, getOrderedSteps } from "../utils";
 import {
-  PlaybookAdditionalDetails,
-  PlaybookMainDetails,
-} from "./PlaybookDetailCards";
-import {
   LeftColumn,
   RightColumn,
   TwoColumnLayout,
@@ -235,38 +231,6 @@ export const PlaybookDetailPage: React.FC = () => {
 
           <TwoColumnLayout>
             <LeftColumn>
-              <CardContainer>
-                <CardHeader>
-                  <CardTitle>Playbook information</CardTitle>
-                </CardHeader>
-                <CardBody>
-                  <SuspenseCard
-                    $isLoading={isLoading}
-                    $isError={isError}
-                    $errorMessage={parsedError?.message}
-                    $returnedNoContent={!isLoading && !isError && !playbook}
-                    $noContentMessage="Playbook not found"
-                  >
-                    <PlaybookMainDetails playbook={playbook} />
-                  </SuspenseCard>
-                </CardBody>
-              </CardContainer>
-              <CardContainer>
-                <CardHeader>
-                  <CardTitle>Additional details</CardTitle>
-                </CardHeader>
-                <CardBody>
-                  <SuspenseCard
-                    $isLoading={isLoading}
-                    $isError={isError}
-                    $errorMessage={parsedError?.message}
-                    $returnedNoContent={!isLoading && !isError && !playbook}
-                    $noContentMessage="Playbook not found"
-                  >
-                    <PlaybookAdditionalDetails playbook={playbook} />
-                  </SuspenseCard>
-                </CardBody>
-              </CardContainer>
               <NgSoarPlaybookDetails playbook={playbook} />
             </LeftColumn>
             <RightColumn>

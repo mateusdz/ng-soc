@@ -320,7 +320,7 @@ export default class CacaoHeader {
 
 		const dropdownItem4 = this._createDropdownItem(
 			'export_cacao-json-icon',
-			'Save SOARCA Version',
+			'Save to NG-SOAR',
 			() => this._cacaoExporter.saveAsNewVersionToSoarca(),
 		);
 
