@@ -133,7 +133,7 @@ export const RoasterWorkspace = styled.section`
 export const RoasterFrame = styled.iframe`
   display: block;
   width: 100%;
-  height: calc(100vh - 11rem);
+  height: calc(100vh - 7rem);
   min-height: 620px;
   border: 0;
 `;

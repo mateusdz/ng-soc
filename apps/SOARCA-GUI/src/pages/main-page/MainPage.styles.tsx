@@ -13,32 +13,16 @@ export const ContentArea = styled.div`
   overflow: hidden;
 `;
 
-export const MainHeader = styled.header`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  background-color: ${({ theme }) => theme.colors.background.primary};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
-  padding: ${({ theme }) => theme.spacing.lg} ${({ theme }) => theme.spacing.xl};
-  min-height: 2rem;
-
-  @media (max-width: 768px) {
-    .mobile-menu {
-      order: 1;
-    }
-    .status-indicator {
-      order: 2;
-    }
-  }
-`;
-
 export const MainContent = styled.main`
   flex: 1;
   overflow-y: auto;
   padding: ${({ theme }) => theme.spacing.lg};
   min-width: 550px;
   background-color: ${({ theme }) => theme.colors.secondary.bg};
+
+  @media (max-width: 768px) {
+    padding-top: 4.5rem;
+  }
 `;
 
 export const MobileMenuButton = styled.button`
@@ -55,6 +39,26 @@ export const MobileMenuButton = styled.button`
   }
 `;
 
+export const MobileLauncher = styled.div`
+  display: none;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: ${({ theme }) => theme.spacing.md};
+    left: ${({ theme }) => theme.spacing.md};
+    right: ${({ theme }) => theme.spacing.md};
+    z-index: ${({ theme }) => theme.zIndex.sticky};
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.md}`};
+    border: 1px solid ${({ theme }) => theme.colors.border.light};
+    border-radius: ${({ theme }) => theme.radius.lg};
+    background: ${({ theme }) => theme.colors.background.primary};
+    box-shadow: ${({ theme }) => theme.shadows.md};
+  }
+`;
+
 export const Overlay = styled.div<{ $isOpen: boolean }>`
   display: none;
 
@@ -67,20 +71,104 @@ export const Overlay = styled.div<{ $isOpen: boolean }>`
   }
 `;
 
-export const BrandLogo = styled.div`
-  display: grid;
+export const BrandLogo = styled.div<{ $isCollapsed?: boolean }>`
+  display: ${({ $isCollapsed }) => ($isCollapsed ? "inline-flex" : "grid")};
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
+  justify-content: center;
   gap: ${({ theme }) => theme.spacing.md};
-  width: 100%;
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "auto" : "100%")};
 `;
 
-export const BrandIcon = styled.div`
+export const SidebarHeaderRow = styled.div<{ $isCollapsed: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: ${({ $isCollapsed }) =>
+    $isCollapsed ? "center" : "space-between"};
+  gap: ${({ theme }) => theme.spacing.sm};
+`;
+
+export const SidebarCollapseButton = styled.button<{ $isCollapsed?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "2rem")};
+  height: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "2rem")};
+  flex: 0 0 ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "2rem")};
+  border: 1px solid ${({ theme }) => theme.colors.border.light};
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ theme }) => theme.colors.background.secondary};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.transitions.base};
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.primary.border};
+    color: ${({ theme }) => theme.colors.primary.hover};
+    background: ${({ theme }) => theme.colors.primary.bg};
+  }
+
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+export const SidebarIconRailButton = styled.button<{ $isCollapsed: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ $isCollapsed, theme }) => ($isCollapsed ? "0" : theme.spacing.sm)};
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "100%")};
+  height: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "auto")};
+  padding: ${({ $isCollapsed, theme }) =>
+    $isCollapsed ? "0" : `${theme.spacing.xs} ${theme.spacing.sm}`};
+  border: 1px solid ${({ theme }) => theme.colors.info.border};
+  border-radius: ${({ theme }) => theme.radius.md};
+  background: ${({ theme }) => theme.colors.info.solidBg};
+  color: ${({ theme }) => theme.colors.info.solidText};
+  cursor: pointer;
+  font: ${({ theme }) => theme.typography.bodyMedium.font};
+  transition: all ${({ theme }) => theme.transitions.base};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.info.text};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
+export const SidebarDocsLink = styled.a<{ $isCollapsed: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ $isCollapsed, theme }) => ($isCollapsed ? "0" : theme.spacing.md)};
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "auto")};
+  height: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "auto")};
+  padding: ${({ $isCollapsed, theme }) =>
+    $isCollapsed ? "0" : `${theme.spacing.sm} ${theme.spacing.lg}`};
+  border-radius: ${({ theme }) => theme.radius.md};
+  color: ${({ theme }) => theme.colors.text.secondary};
+  cursor: pointer;
+  font: ${({ theme }) => theme.typography.bodyMedium.font};
+  text-decoration: none;
+  transition:
+    color ${({ theme }) => theme.transitions.base},
+    background-color ${({ theme }) => theme.transitions.base};
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary.main};
+    background-color: ${({ theme }) => `${theme.colors.primary.main}26`};
+  }
+`;
+
+export const BrandIcon = styled.div<{ $isCollapsed?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "3rem" : "2.5rem")};
+  height: ${({ $isCollapsed }) => ($isCollapsed ? "3rem" : "2.5rem")};
   border-radius: ${({ theme }) => theme.radius.lg};
   color: ${({ theme }) => theme.colors.primary.text};
   background: linear-gradient(
@@ -93,6 +181,12 @@ export const BrandIcon = styled.div`
 
 export const BrandText = styled.div`
   min-width: 0;
+`;
+
+export const NavText = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const BrandTitle = styled.div`

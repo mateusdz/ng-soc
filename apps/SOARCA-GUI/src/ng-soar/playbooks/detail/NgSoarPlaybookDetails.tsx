@@ -65,7 +65,7 @@ import {
   SectionTitle,
   SummaryDefinition,
   SummaryDefinitionGrid,
-  SummaryDescription,
+  SummaryStatus,
   Disclosure,
   ObjectPreview,
 } from "./NgSoarPlaybookDetails.styles";
@@ -273,6 +273,66 @@ export function NgSoarPlaybookDetails({ playbook }: NgSoarPlaybookDetailsProps) 
 
       <CardContainer>
         <CardHeader>
+          <CardTitle>Processing summary and resources</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <DetailsStack>
+            <Section>
+              <SectionHeader>
+                <SectionTitle>Playbook summary</SectionTitle>
+                {!hasSummary ? (
+                  <Button
+                    $variant={ThemeVariant.Primary}
+                    $ghost
+                    onClick={() => populateSummaryMutation.mutate()}
+                    disabled={populateSummaryMutation.isPending}
+                  >
+                    Populate summary
+                  </Button>
+                ) : null}
+              </SectionHeader>
+              <InlineBadges>
+                {summaryEntries.length ? (
+                  summaryEntries.map(([key]) => (
+                    <Badge key={key} $variant={ThemeVariant.Secondary}>
+                      {playbookSummaryLabels[key] ?? key.replaceAll("_", " ")}
+                    </Badge>
+                  ))
+                ) : (
+                  <MutedValue>No processing features detected</MutedValue>
+                )}
+              </InlineBadges>
+              <SummaryDefinitionGrid>
+                {playbookSummaryDefinitions.map((definition) => {
+                  const isDetected = summary[definition.key] === true;
+
+                  return (
+                    <SummaryDefinition
+                      key={definition.key}
+                      aria-label={`${definition.label}: ${isDetected ? "Yes" : "No"}. ${definition.description}`}
+                      data-tooltip={definition.description}
+                      tabIndex={0}
+                      title={definition.description}
+                    >
+                      <strong>{definition.label}</strong>
+                      <SummaryStatus $detected={isDetected}>
+                        {isDetected ? "Yes" : "No"}
+                      </SummaryStatus>
+                    </SummaryDefinition>
+                  );
+                })}
+              </SummaryDefinitionGrid>
+            </Section>
+            <Section>
+              <SectionTitle>Referenced resources</SectionTitle>
+              <CountSection items={resourceCounts} />
+            </Section>
+          </DetailsStack>
+        </CardBody>
+      </CardContainer>
+
+      <CardContainer>
+        <CardHeader>
           <CardTitle>Identity and classification</CardTitle>
         </CardHeader>
         <CardBody>
@@ -448,69 +508,6 @@ export function NgSoarPlaybookDetails({ playbook }: NgSoarPlaybookDetailsProps) 
                 </DetailValue>
               </DetailItem>
             </DetailGrid>
-          </DetailsStack>
-        </CardBody>
-      </CardContainer>
-
-      <CardContainer>
-        <CardHeader>
-          <CardTitle>Processing summary and resources</CardTitle>
-        </CardHeader>
-        <CardBody>
-          <DetailsStack>
-            <Section>
-              <SectionHeader>
-                <SectionTitle>Playbook summary</SectionTitle>
-                {!hasSummary ? (
-                  <Button
-                    $variant={ThemeVariant.Primary}
-                    $ghost
-                    onClick={() => populateSummaryMutation.mutate()}
-                    disabled={populateSummaryMutation.isPending}
-                  >
-                    Populate summary
-                  </Button>
-                ) : null}
-              </SectionHeader>
-              <InlineBadges>
-                {summaryEntries.length ? (
-                  summaryEntries.map(([key]) => (
-                    <Badge key={key} $variant={ThemeVariant.Secondary}>
-                      {playbookSummaryLabels[key] ?? key.replaceAll("_", " ")}
-                    </Badge>
-                  ))
-                ) : (
-                  <MutedValue>No processing features detected</MutedValue>
-                )}
-              </InlineBadges>
-              <SummaryDefinitionGrid>
-                {playbookSummaryDefinitions.map((definition) => {
-                  const isDetected = summary[definition.key] === true;
-
-                  return (
-                    <SummaryDefinition key={definition.key}>
-                      <InlineBadges>
-                        <Badge
-                          $variant={
-                            isDetected
-                              ? ThemeVariant.Success
-                              : ThemeVariant.Secondary
-                          }
-                        >
-                          {isDetected ? "Detected" : "Not detected"}
-                        </Badge>
-                      </InlineBadges>
-                      <strong>{definition.label}</strong>
-                      <SummaryDescription>{definition.description}</SummaryDescription>
-                    </SummaryDefinition>
-                  );
-                })}
-              </SummaryDefinitionGrid>
-            </Section>
-            <Section>
-              <SectionTitle>Referenced resources</SectionTitle>
-              <CountSection items={resourceCounts} />
-            </Section>
           </DetailsStack>
         </CardBody>
       </CardContainer>

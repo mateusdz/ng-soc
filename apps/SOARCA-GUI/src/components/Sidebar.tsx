@@ -10,6 +10,7 @@ const sidebarWidths: Record<SidebarWidth, string> = {
 
 export interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
   $isOpen: boolean;
+  $isCollapsed?: boolean;
   $maxWidth?: SidebarWidth;
 }
 
@@ -24,20 +25,25 @@ export const Sidebar = styled.aside<SidebarProps>`
   display: flex;
   flex-direction: column;
 
-  width: auto;
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "5.5rem" : "280px")};
   max-width: ${({ $maxWidth = "normal" }) => sidebarWidths[$maxWidth]};
 
   gap: ${({ theme }) => theme.spacing.lg};
-  padding: ${({ theme }) => theme.spacing.lg};
+  padding: ${({ $isCollapsed, theme }) =>
+    $isCollapsed ? theme.spacing.md : theme.spacing.lg};
 
   border-right: 1px solid ${({ theme }) => theme.colors.border.light};
 
   background-color: ${({ theme }) => theme.colors.background.primary};
 
-  transition: width ${({ theme }) => theme.transitions.slow};
+  transition:
+    width ${({ theme }) => theme.transitions.slow},
+    padding ${({ theme }) => theme.transitions.slow};
 
   @media (max-width: 768px) {
     position: fixed;
+    width: 280px;
+    padding: ${({ theme }) => theme.spacing.lg};
     left: 0;
     top: 0;
     bottom: 0;
@@ -47,30 +53,34 @@ export const Sidebar = styled.aside<SidebarProps>`
   }
 `;
 
-export const SidebarHeader = styled.div`
+export const SidebarHeader = styled.div<{ $isCollapsed?: boolean }>`
   display: flex;
   flex-direction: column;
+  align-items: ${({ $isCollapsed }) => ($isCollapsed ? "center" : "stretch")};
 
-  gap: ${({ theme }) => theme.spacing.lg};
+  gap: ${({ $isCollapsed, theme }) =>
+    $isCollapsed ? theme.spacing.md : theme.spacing.lg};
   padding-top: ${({ theme }) => theme.spacing.lg};
   padding-bottom: ${({ theme }) => theme.spacing.xl};
 
   border-bottom: 1px solid ${({ theme }) => theme.colors.border.light};
 `;
 
-export const SidebarNav = styled.nav`
+export const SidebarNav = styled.nav<{ $isCollapsed?: boolean }>`
   display: flex;
   flex-direction: column;
+  align-items: ${({ $isCollapsed }) => ($isCollapsed ? "center" : "stretch")};
 
   gap: ${({ theme }) => theme.spacing.md};
 `;
 
-export const SidebarLogoContainer = styled.div`
+export const SidebarLogoContainer = styled.div<{ $isCollapsed?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
 
-  padding: ${({ theme }) => theme.spacing.md};
+  padding: ${({ $isCollapsed, theme }) =>
+    $isCollapsed ? `${theme.spacing.sm} 0` : theme.spacing.md};
 `;
 
 /**
@@ -78,9 +88,10 @@ export const SidebarLogoContainer = styled.div`
  * Highlights when active and changes appearance on hover.
  * @param $isActive - Whether the nav item is currently active (default: false)
  */
-export const NavItem = styled.a<{ $isActive?: boolean }>`
+export const NavItem = styled.a<{ $isActive?: boolean; $isCollapsed?: boolean }>`
   display: flex;
   align-items: center;
+  justify-content: ${({ $isCollapsed }) => ($isCollapsed ? "center" : "flex-start")};
 
   font: ${({ theme }) => theme.typography.bodyMedium.font};
 
@@ -93,8 +104,11 @@ export const NavItem = styled.a<{ $isActive?: boolean }>`
   color: ${({ theme }) => theme.colors.text.secondary};
   border: none;
 
-  padding: ${({ theme }) => `${theme.spacing.sm} ${theme.spacing.lg}`};
-  gap: ${({ theme }) => theme.spacing.md};
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "auto")};
+  height: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "auto")};
+  padding: ${({ $isCollapsed, theme }) =>
+    $isCollapsed ? "0" : `${theme.spacing.sm} ${theme.spacing.lg}`};
+  gap: ${({ $isCollapsed, theme }) => ($isCollapsed ? "0" : theme.spacing.md)};
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary.main};
@@ -109,13 +123,15 @@ export const NavItem = styled.a<{ $isActive?: boolean }>`
       : ""}
 `;
 
-export const SidebarFooter = styled.div`
+export const SidebarFooter = styled.div<{ $isCollapsed?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
 
-  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.md}
-    0 ${({ theme }) => theme.spacing.md};
+  padding: ${({ $isCollapsed, theme }) =>
+    $isCollapsed
+      ? `${theme.spacing.md} 0 0`
+      : `${theme.spacing.md} ${theme.spacing.md} 0 ${theme.spacing.md}`};
 
   border-top: 1px solid ${({ theme }) => theme.colors.border.light};
   margin-top: auto;

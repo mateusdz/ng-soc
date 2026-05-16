@@ -6,6 +6,8 @@ import {
   LayoutDashboard,
   LucideIcon,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   ShieldCheck,
   SquarePen,
@@ -17,19 +19,14 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { PATHS, SOARCA_DOC_URL } from "@/utils";
 
 import {
-  Button,
-  ButtonWidth,
   Icon,
-  Link,
   NavItem,
   Sidebar,
   SidebarFooter,
   SidebarHeader,
   SidebarLogoContainer,
   SidebarNav,
-  Spacer,
   ThemeSize,
-  ThemeVariant,
 } from "@/components";
 
 import {
@@ -40,13 +37,17 @@ import {
   BrandTitle,
   ContentArea,
   MainContent,
-  MainHeader,
   MainWrapper,
   MobileBrand,
+  MobileLauncher,
   MobileMenuButton,
+  NavText,
   Overlay,
+  SidebarCollapseButton,
+  SidebarDocsLink,
+  SidebarHeaderRow,
+  SidebarIconRailButton,
 } from "./MainPage.styles";
-import { StatusIndicator } from "./StatusIndicator";
 
 interface NavRoute {
   path: string;
@@ -70,6 +71,8 @@ export const MainPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const showSidebarLabels = sidebarOpen || !sidebarCollapsed;
 
   const openSidebar = () => setSidebarOpen(true);
   const closeSidebar = () => setSidebarOpen(false);
@@ -82,33 +85,70 @@ export const MainPage: React.FC = () => {
   return (
     <MainWrapper>
       <Overlay $isOpen={sidebarOpen} onClick={closeSidebar} />
-      <Sidebar $isOpen={sidebarOpen}>
-        <SidebarHeader>
-          <SidebarLogoContainer>
-            <BrandLogo aria-label="NG-SOAR">
-              <BrandIcon>
-                <Icon $icon={ShieldCheck} />
-              </BrandIcon>
-              <BrandText>
-                <BrandTitle>NG-SOAR</BrandTitle>
-                <BrandSubtitle>NG-SOC Console</BrandSubtitle>
-              </BrandText>
-            </BrandLogo>
-          </SidebarLogoContainer>
-          <Button
-            $variant={ThemeVariant.Primary}
-            $size={ThemeSize.Small}
-            $width={ButtonWidth.Full}
+      <Sidebar $isOpen={sidebarOpen} $isCollapsed={sidebarCollapsed}>
+        <SidebarHeader $isCollapsed={!showSidebarLabels}>
+          <SidebarHeaderRow $isCollapsed={!showSidebarLabels}>
+            <SidebarLogoContainer $isCollapsed={!showSidebarLabels}>
+              <BrandLogo
+                $isCollapsed={!showSidebarLabels}
+                aria-label="NG-SOAR"
+                title="NG-SOAR"
+              >
+                <BrandIcon $isCollapsed={!showSidebarLabels}>
+                  <Icon
+                    $icon={ShieldCheck}
+                    $size={showSidebarLabels ? ThemeSize.Large : ThemeSize.ExtraLarge}
+                  />
+                </BrandIcon>
+                {showSidebarLabels ? (
+                  <BrandText>
+                    <BrandTitle>NG-SOAR</BrandTitle>
+                    <BrandSubtitle>NG-SOC Console</BrandSubtitle>
+                  </BrandText>
+                ) : null}
+              </BrandLogo>
+            </SidebarLogoContainer>
+            {showSidebarLabels ? (
+              <SidebarCollapseButton
+                aria-label="Collapse sidebar"
+                title="Collapse sidebar"
+                type="button"
+                onClick={() => setSidebarCollapsed(true)}
+              >
+                <Icon $icon={PanelLeftClose} $size={ThemeSize.Medium} />
+              </SidebarCollapseButton>
+            ) : null}
+          </SidebarHeaderRow>
+          {!showSidebarLabels ? (
+            <SidebarCollapseButton
+              $isCollapsed
+              aria-label="Expand sidebar"
+              title="Expand sidebar"
+              type="button"
+              onClick={() => setSidebarCollapsed(false)}
+            >
+              <Icon $icon={PanelLeftOpen} $size={ThemeSize.ExtraLarge} />
+            </SidebarCollapseButton>
+          ) : null}
+          <SidebarIconRailButton
+            $isCollapsed={!showSidebarLabels}
             onClick={() => handleNavigation(PATHS.PLAYBOOKS.NEW)}
+            aria-label="New playbook"
+            title="New playbook"
+            type="button"
           >
-            <Icon $icon={FilePlusCorner} />
-            New playbook
-          </Button>
+            <Icon
+              $icon={FilePlusCorner}
+              $size={showSidebarLabels ? ThemeSize.Large : ThemeSize.ExtraLarge}
+            />
+            {showSidebarLabels ? <NavText>New playbook</NavText> : null}
+          </SidebarIconRailButton>
         </SidebarHeader>
-        <SidebarNav>
+        <SidebarNav $isCollapsed={!showSidebarLabels}>
           {NAV_ROUTES.map((route) => (
             <NavItem
               key={route.path}
+              $isCollapsed={!showSidebarLabels}
               $isActive={
                 location.pathname === route.path ||
                 (route.path === PATHS.MONITORING.BASE &&
@@ -119,45 +159,50 @@ export const MainPage: React.FC = () => {
                   location.pathname.includes(PATHS.ROASTER.BASE))
               }
               onClick={() => handleNavigation(route.path)}
+              aria-label={route.label}
+              title={route.label}
             >
-              <Icon $icon={route.icon} />
-              {route.label}
+              <Icon
+                $icon={route.icon}
+                $size={showSidebarLabels ? ThemeSize.Large : ThemeSize.ExtraLarge}
+              />
+              {showSidebarLabels ? <NavText>{route.label}</NavText> : null}
             </NavItem>
           ))}
         </SidebarNav>
-        <SidebarFooter>
-          <Link
-            $variant="subtle"
-            $to={SOARCA_DOC_URL}
+        <SidebarFooter $isCollapsed={!showSidebarLabels}>
+          <SidebarDocsLink
+            $isCollapsed={!showSidebarLabels}
+            href={SOARCA_DOC_URL}
             target="_blank"
             rel="help noopener noreferrer"
+            aria-label="Docs"
+            title="Docs"
           >
-            <Icon $icon={BookOpen} />
-            Docs
-          </Link>
+            <Icon
+              $icon={BookOpen}
+              $size={showSidebarLabels ? ThemeSize.Large : ThemeSize.ExtraLarge}
+            />
+            {showSidebarLabels ? <NavText>Docs</NavText> : null}
+          </SidebarDocsLink>
         </SidebarFooter>
       </Sidebar>
       <ContentArea>
-        <MainHeader>
-          <StatusIndicator />
-          <Spacer $gap="lg" $align="center" className="mobile-menu">
-            <MobileBrand>
-              <BrandIcon>
-                <Icon $icon={ShieldCheck} />
-              </BrandIcon>
-              NG-SOAR
-            </MobileBrand>
-            <MobileMenuButton
-              onClick={sidebarOpen ? closeSidebar : openSidebar}
-            >
-              {sidebarOpen ? (
-                <Icon $icon={X} $size={ThemeSize.ExtraLarge} />
-              ) : (
-                <Icon $icon={Menu} $size={ThemeSize.ExtraLarge} />
-              )}
-            </MobileMenuButton>
-          </Spacer>
-        </MainHeader>
+        <MobileLauncher>
+          <MobileBrand>
+            <BrandIcon>
+              <Icon $icon={ShieldCheck} />
+            </BrandIcon>
+            NG-SOAR
+          </MobileBrand>
+          <MobileMenuButton onClick={sidebarOpen ? closeSidebar : openSidebar}>
+            {sidebarOpen ? (
+              <Icon $icon={X} $size={ThemeSize.ExtraLarge} />
+            ) : (
+              <Icon $icon={Menu} $size={ThemeSize.ExtraLarge} />
+            )}
+          </MobileMenuButton>
+        </MobileLauncher>
         <MainContent>
           <Outlet />
         </MainContent>
