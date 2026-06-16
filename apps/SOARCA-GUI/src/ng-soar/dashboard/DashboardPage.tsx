@@ -1,16 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   Activity,
-  BookOpen,
+  AlertTriangle,
+  CheckCircle2,
   Clock3,
   FilePlusCorner,
-  GitBranch,
   Hand,
-  type LucideIcon,
   Play,
-  RefreshCw,
   ShieldCheck,
   SquareTerminal,
+  type LucideIcon,
 } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -33,6 +32,7 @@ import {
 import {
   getExecutionSummaries,
   type ExecutionSummary,
+  type ExecutionSummaryStatus,
 } from "@/ng-soar/api/executionSummaries";
 import {
   executionStatusLabels,
@@ -79,6 +79,25 @@ type DashboardMetric = {
   variant: ThemeVariant;
 };
 
+type AttentionItem = {
+  id: string;
+  title: string;
+  meta: string;
+  badge: string;
+  variant: ThemeVariant;
+  target: string;
+};
+
+const ERROR_STATUSES: ExecutionSummaryStatus[] = [
+  "failed",
+  "server_side_error",
+  "client_side_error",
+  "timeout_error",
+  "exception_condition_error",
+];
+
+const LONG_RUNNING_THRESHOLD_MS = 30 * 60 * 1000;
+
 function latestTimestamp(summary: ExecutionSummary) {
   return (
     summary.completedAt ??
@@ -89,10 +108,23 @@ function latestTimestamp(summary: ExecutionSummary) {
   );
 }
 
-function sortPlaybooksByModified(playbooks: Playbook[]) {
-  return [...playbooks].sort((a, b) =>
-    (b.modified ?? b.created ?? "").localeCompare(a.modified ?? a.created ?? ""),
-  );
+function isErrorStatus(status?: ExecutionSummaryStatus) {
+  return Boolean(status && ERROR_STATUSES.includes(status));
+}
+
+function timestampMs(value?: string) {
+  const parsed = value ? Date.parse(value) : Number.NaN;
+  return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function isWithinDays(value: string | undefined, days: number) {
+  const time = timestampMs(value);
+
+  if (!time) {
+    return false;
+  }
+
+  return Date.now() - time <= days * 24 * 60 * 60 * 1000;
 }
 
 function sortExecutionsByLatest(summaries: ExecutionSummary[]) {
@@ -107,12 +139,48 @@ function hasManualActionRequired(report: PlaybookExecutionReport) {
   );
 }
 
+function manualStepCount(report: PlaybookExecutionReport) {
+  return Object.values(report.step_results ?? {}).filter(
+    (step) => step.automated_execution === false && step.status === "ongoing",
+  ).length;
+}
+
+function isLongRunning(report: PlaybookExecutionReport) {
+  if (report.status !== "ongoing") {
+    return false;
+  }
+
+  const started = timestampMs(report.started);
+
+  return Boolean(started && Date.now() - started > LONG_RUNNING_THRESHOLD_MS);
+}
+
 function playbookDetailPath(playbookId: string) {
   return PATHS.PLAYBOOKS.DETAIL.replace(":playbookId", playbookId);
 }
 
 function monitoringDetailPath(executionId: string) {
   return PATHS.MONITORING.DETAIL.replace(":executionId", executionId);
+}
+
+function formatPercent(value: number) {
+  if (!Number.isFinite(value)) {
+    return "0%";
+  }
+
+  return `${Math.round(value)}%`;
+}
+
+function averageDuration(summaries: ExecutionSummary[]) {
+  const durations = summaries
+    .map((summary) => summary.durationMs)
+    .filter((duration): duration is number => typeof duration === "number");
+
+  if (!durations.length) {
+    return undefined;
+  }
+
+  return durations.reduce((total, duration) => total + duration, 0) / durations.length;
 }
 
 function MetricTile({ metric }: { metric: DashboardMetric }) {
@@ -175,30 +243,155 @@ export const NgSoarDashboardPage: React.FC = () => {
       })),
     [playbooks],
   );
-  const recentPlaybooks = React.useMemo(
-    () => sortPlaybooksByModified(playbooks).slice(0, 5),
-    [playbooks],
-  );
-  const recentExecutions = React.useMemo(
-    () => sortExecutionsByLatest(executionSummaries).slice(0, 5),
+  const sortedExecutions = React.useMemo(
+    () => sortExecutionsByLatest(executionSummaries),
     [executionSummaries],
   );
+  const recentProblemExecutions = React.useMemo(
+    () =>
+      sortedExecutions
+        .filter(
+          (summary) =>
+            isErrorStatus(summary.status) ||
+            summary.status === "await_user_input" ||
+            summary.status === "ongoing",
+        )
+        .slice(0, 5),
+    [sortedExecutions],
+  );
 
-  const manualPlaybooks = playbookRecords.filter(
-    ({ metadata }) => metadata.hasManualSteps,
-  ).length;
-  const derivedVersions = playbookRecords.filter(
-    ({ metadata }) => metadata.isDerivedVersion,
+  const manualReports = reporterState.filter(hasManualActionRequired);
+  const longRunningReports = reporterState.filter(isLongRunning);
+  const runningExecutions =
+    executionSummaries.filter((summary) => summary.status === "ongoing").length +
+    reporterState.filter((report) => report.status === "ongoing").length;
+  const failedLastSevenDays = executionSummaries.filter(
+    (summary) =>
+      isErrorStatus(summary.status) && isWithinDays(latestTimestamp(summary), 7),
   ).length;
   const successfulExecutions = executionSummaries.filter(
     (summary) => summary.status === "successfully_executed",
   ).length;
-  const ongoingExecutions =
-    executionSummaries.filter((summary) => summary.status === "ongoing").length +
-    reporterState.filter((report) => report.status === "ongoing").length;
-  const manualActions = reporterState.filter(hasManualActionRequired).length;
+  const successRate = executionSummaries.length
+    ? (successfulExecutions / executionSummaries.length) * 100
+    : 0;
+  const avgDuration = averageDuration(executionSummaries);
 
-  const latestExecution = recentExecutions[0];
+  const readyPlaybooks = playbookRecords.filter(
+    ({ metadata }) => metadata.isValid && metadata.isExecutable,
+  ).length;
+  const invalidPlaybooks = playbookRecords.filter(
+    ({ metadata }) => !metadata.isValid,
+  ).length;
+  const nonExecutablePlaybooks = playbookRecords.filter(
+    ({ metadata }) => metadata.isValid && !metadata.isExecutable,
+  ).length;
+  const missingSummaryPlaybooks = playbookRecords.filter(
+    ({ metadata }) => metadata.summaryFeatures.length === 0,
+  ).length;
+  const highImpactPlaybooks = playbooks.filter(
+    (playbook) =>
+      (playbook.impact ?? 0) >= 70 ||
+      (playbook.severity ?? 0) >= 70 ||
+      (playbook.priority ?? 101) <= 10,
+  ).length;
+  const manualPlaybooks = playbookRecords.filter(
+    ({ metadata }) => metadata.hasManualSteps,
+  ).length;
+  const manualOnlyPlaybooks = playbooks.filter(
+    (playbook) => playbook.playbook_processing_summary?.manual_playbook,
+  ).length;
+
+  const playbookTypeCounts = playbooks.reduce<Record<string, number>>(
+    (counts, playbook) => {
+      for (const type of playbook.playbook_types ?? ["Unclassified"]) {
+        counts[type] = (counts[type] ?? 0) + 1;
+      }
+
+      return counts;
+    },
+    {},
+  );
+
+  const attentionItems: AttentionItem[] = [
+    ...manualReports.map((report) => ({
+      id: `manual-${report.execution_id}`,
+      title: report.name || report.playbook_id,
+      meta: `${manualStepCount(report)} manual step${manualStepCount(report) === 1 ? "" : "s"} waiting since ${formatDateTime(report.started, true)}`,
+      badge: "Manual input",
+      variant: ThemeVariant.Warning,
+      target: monitoringDetailPath(report.execution_id),
+    })),
+    ...longRunningReports.map((report) => ({
+      id: `long-${report.execution_id}`,
+      title: report.name || report.playbook_id,
+      meta: `Running for ${formatDuration(computeDurationMs(report.started, undefined))}`,
+      badge: "Long running",
+      variant: ThemeVariant.Warning,
+      target: monitoringDetailPath(report.execution_id),
+    })),
+    ...sortedExecutions
+      .filter((summary) => isErrorStatus(summary.status))
+      .slice(0, 4)
+      .map((summary) => ({
+        id: `failed-${summary.id}`,
+        title: summary.playbookId,
+        meta: `${executionStatusLabels[summary.status]} at ${formatDateTime(latestTimestamp(summary), true)}`,
+        badge: "Failed",
+        variant: ThemeVariant.Error,
+        target: summary.executionId
+          ? monitoringDetailPath(summary.executionId)
+          : PATHS.MONITORING.BASE,
+      })),
+    ...playbookRecords
+      .filter(({ metadata }) => !metadata.isValid || !metadata.isExecutable)
+      .slice(0, 4)
+      .map(({ playbook, metadata }) => ({
+        id: `readiness-${playbook.id}`,
+        title: playbook.name,
+        meta: metadata.isValid
+          ? "Valid metadata, but not executable"
+          : "Invalid CACAO metadata",
+        badge: metadata.isValid ? "Not executable" : "Invalid",
+        variant: ThemeVariant.Error,
+        target: playbookDetailPath(playbook.id),
+      })),
+  ].slice(0, 7);
+
+  const metrics: DashboardMetric[] = [
+    {
+      label: "Attention required",
+      value: attentionItems.length,
+      caption: `${manualReports.length} manual, ${failedLastSevenDays} failed in 7d`,
+      icon: AlertTriangle,
+      variant: attentionItems.length ? ThemeVariant.Warning : ThemeVariant.Success,
+    },
+    {
+      label: "Execution health",
+      value: formatPercent(successRate),
+      caption: `${runningExecutions} running, avg ${avgDuration ? formatDuration(avgDuration) : "n/a"}`,
+      icon: Activity,
+      variant: failedLastSevenDays ? ThemeVariant.Warning : ThemeVariant.Success,
+    },
+    {
+      label: "Playbook readiness",
+      value: `${readyPlaybooks}/${playbooks.length}`,
+      caption: `${invalidPlaybooks + nonExecutablePlaybooks} not ready, ${missingSummaryPlaybooks} missing summary`,
+      icon: CheckCircle2,
+      variant:
+        invalidPlaybooks || nonExecutablePlaybooks
+          ? ThemeVariant.Warning
+          : ThemeVariant.Success,
+    },
+    {
+      label: "Manual workload",
+      value: manualReports.reduce((total, report) => total + manualStepCount(report), 0),
+      caption: `${manualPlaybooks} playbooks use manual steps`,
+      icon: Hand,
+      variant: manualReports.length ? ThemeVariant.Warning : ThemeVariant.Info,
+    },
+  ];
+
   const systemStatusVariant = systemStatusQuery.isError
     ? ThemeVariant.Error
     : systemStatusQuery.isLoading
@@ -209,36 +402,6 @@ export const NgSoarDashboardPage: React.FC = () => {
     : systemStatusQuery.isLoading
       ? "Checking"
       : "Online";
-  const metrics: DashboardMetric[] = [
-    {
-      label: "Playbooks",
-      value: playbooks.length,
-      caption: `${manualPlaybooks} with manual steps`,
-      icon: BookOpen,
-      variant: ThemeVariant.Primary,
-    },
-    {
-      label: "Derived versions",
-      value: derivedVersions,
-      caption: "Tracked through CACAO metadata",
-      icon: GitBranch,
-      variant: ThemeVariant.Accent,
-    },
-    {
-      label: "Persisted executions",
-      value: executionSummaries.length,
-      caption: `${successfulExecutions} successful`,
-      icon: ShieldCheck,
-      variant: ThemeVariant.Success,
-    },
-    {
-      label: "Running now",
-      value: ongoingExecutions,
-      caption: manualActions ? `${manualActions} awaiting input` : "No manual input pending",
-      icon: Activity,
-      variant: manualActions ? ThemeVariant.Warning : ThemeVariant.Info,
-    },
-  ];
 
   return (
     <SuspenseCard
@@ -250,18 +413,20 @@ export const NgSoarDashboardPage: React.FC = () => {
         <CardContainer>
           <CardHeader>
             <div>
-              <CardTitle>NG-SOAR dashboard</CardTitle>
-              <Text>Operational overview for playbooks, executions, and authoring.</Text>
+              <CardTitle>SOC operations overview</CardTitle>
+              <Text>
+                Analyst attention, automation health, and playbook readiness.
+              </Text>
             </div>
             <DashboardHeaderActions>
               <Button
                 type="button"
                 $variant={ThemeVariant.Primary}
                 $size={ThemeSize.Small}
-                onClick={() => navigate(PATHS.PLAYBOOKS.NEW)}
+                onClick={() => navigate(PATHS.MONITORING.BASE)}
               >
-                <Icon $icon={FilePlusCorner} $size={ThemeSize.Medium} />
-                New playbook
+                <Icon $icon={Play} $size={ThemeSize.Medium} />
+                Monitoring
               </Button>
               <Button
                 type="button"
@@ -271,7 +436,7 @@ export const NgSoarDashboardPage: React.FC = () => {
                 onClick={() => navigate(PATHS.ROASTER.BASE)}
               >
                 <Icon $icon={SquareTerminal} $size={ThemeSize.Medium} />
-                Roaster
+                Playbook Editor
               </Button>
             </DashboardHeaderActions>
           </CardHeader>
@@ -286,7 +451,77 @@ export const NgSoarDashboardPage: React.FC = () => {
         <DashboardGrid>
           <CardContainer>
             <CardHeader>
-              <CardTitle>Recent playbooks</CardTitle>
+              <CardTitle>Analyst action queue</CardTitle>
+              <Badge $variant={attentionItems.length ? ThemeVariant.Warning : ThemeVariant.Success}>
+                {attentionItems.length ? "Needs review" : "Clear"}
+              </Badge>
+            </CardHeader>
+            <CardContentStack>
+              {attentionItems.length ? (
+                <DashboardList>
+                  {attentionItems.map((item) => (
+                    <DashboardListItem
+                      key={item.id}
+                      type="button"
+                      onClick={() => navigate(item.target)}
+                    >
+                      <DashboardListMain>
+                        <DashboardListTitle>{item.title}</DashboardListTitle>
+                        <DashboardListMeta>{item.meta}</DashboardListMeta>
+                      </DashboardListMain>
+                      <Badge $variant={item.variant}>{item.badge}</Badge>
+                    </DashboardListItem>
+                  ))}
+                </DashboardList>
+              ) : (
+                <EmptyState>No failed, blocked, or waiting automation needs attention.</EmptyState>
+              )}
+            </CardContentStack>
+          </CardContainer>
+
+          <CardContainer>
+            <CardHeader>
+              <CardTitle>Execution health</CardTitle>
+              <Icon $icon={Activity} $size={ThemeSize.ExtraLarge} />
+            </CardHeader>
+            <CardContentStack>
+              <StatusRows>
+                <StatusRow>
+                  <StatusLabel>Success rate</StatusLabel>
+                  <StatusValue>{formatPercent(successRate)}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Running now</StatusLabel>
+                  <StatusValue>{runningExecutions}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Failed in last 7 days</StatusLabel>
+                  <StatusValue>{failedLastSevenDays}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Average duration</StatusLabel>
+                  <StatusValue>
+                    {avgDuration ? formatDuration(avgDuration) : "No duration data"}
+                  </StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Manual steps waiting</StatusLabel>
+                  <StatusValue>
+                    {manualReports.reduce(
+                      (total, report) => total + manualStepCount(report),
+                      0,
+                    )}
+                  </StatusValue>
+                </StatusRow>
+              </StatusRows>
+            </CardContentStack>
+          </CardContainer>
+        </DashboardGrid>
+
+        <DashboardGrid>
+          <CardContainer>
+            <CardHeader>
+              <CardTitle>Playbook readiness</CardTitle>
               <Button
                 type="button"
                 $variant={ThemeVariant.Primary}
@@ -294,48 +529,113 @@ export const NgSoarDashboardPage: React.FC = () => {
                 $size={ThemeSize.Small}
                 onClick={() => navigate(PATHS.PLAYBOOKS.BASE)}
               >
-                View all
+                View library
               </Button>
             </CardHeader>
             <CardContentStack>
-              {recentPlaybooks.length ? (
+              <StatusRows>
+                <StatusRow>
+                  <StatusLabel>Valid and executable</StatusLabel>
+                  <StatusValue>{readyPlaybooks}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Invalid metadata</StatusLabel>
+                  <StatusValue>{invalidPlaybooks}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Valid but not executable</StatusLabel>
+                  <StatusValue>{nonExecutablePlaybooks}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>High impact / severity / priority</StatusLabel>
+                  <StatusValue>{highImpactPlaybooks}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Missing processing summary</StatusLabel>
+                  <StatusValue>{missingSummaryPlaybooks}</StatusValue>
+                </StatusRow>
+                <StatusRow>
+                  <StatusLabel>Manual-only playbooks</StatusLabel>
+                  <StatusValue>{manualOnlyPlaybooks}</StatusValue>
+                </StatusRow>
+              </StatusRows>
+            </CardContentStack>
+          </CardContainer>
+
+          <CardContainer>
+            <CardHeader>
+              <CardTitle>Automation coverage</CardTitle>
+              <Icon $icon={ShieldCheck} $size={ThemeSize.ExtraLarge} />
+            </CardHeader>
+            <CardContentStack>
+              {Object.keys(playbookTypeCounts).length ? (
+                <StatusRows>
+                  {Object.entries(playbookTypeCounts)
+                    .sort(([, a], [, b]) => b - a)
+                    .map(([type, count]) => (
+                      <StatusRow key={type}>
+                        <StatusLabel>{type}</StatusLabel>
+                        <StatusValue>{count}</StatusValue>
+                      </StatusRow>
+                    ))}
+                </StatusRows>
+              ) : (
+                <EmptyState>No playbook type coverage available.</EmptyState>
+              )}
+            </CardContentStack>
+          </CardContainer>
+        </DashboardGrid>
+
+        <DashboardGrid>
+          <CardContainer>
+            <CardHeader>
+              <CardTitle>Recent execution problems</CardTitle>
+              <Button
+                type="button"
+                $variant={ThemeVariant.Primary}
+                $ghost
+                $size={ThemeSize.Small}
+                onClick={() => navigate(PATHS.MONITORING.BASE)}
+              >
+                Monitoring
+              </Button>
+            </CardHeader>
+            <CardContentStack>
+              {recentProblemExecutions.length ? (
                 <DashboardList>
-                  {recentPlaybooks.map((playbook) => {
-                    const metadata = extractPlaybookMetadata(playbook);
-                    return (
-                      <DashboardListItem
-                        key={playbook.id}
-                        type="button"
-                        onClick={() => navigate(playbookDetailPath(playbook.id))}
-                      >
-                        <DashboardListMain>
-                          <DashboardListTitle>{playbook.name}</DashboardListTitle>
-                          <DashboardListMeta>
-                            Modified {formatDateTime(playbook.modified, true)}
-                          </DashboardListMeta>
-                        </DashboardListMain>
-                        <Badge
-                          $variant={
-                            metadata.hasManualSteps
-                              ? ThemeVariant.Warning
-                              : ThemeVariant.Info
-                          }
-                        >
-                          {metadata.hasManualSteps ? "Manual" : "Automated"}
-                        </Badge>
-                      </DashboardListItem>
-                    );
-                  })}
+                  {recentProblemExecutions.map((summary) => (
+                    <DashboardListItem
+                      key={summary.id}
+                      type="button"
+                      onClick={() =>
+                        navigate(
+                          summary.executionId
+                            ? monitoringDetailPath(summary.executionId)
+                            : PATHS.MONITORING.BASE,
+                        )
+                      }
+                    >
+                      <DashboardListMain>
+                        <DashboardListTitle>{summary.playbookId}</DashboardListTitle>
+                        <DashboardListMeta>
+                          {formatDateTime(latestTimestamp(summary), true)}
+                        </DashboardListMeta>
+                      </DashboardListMain>
+                      <Badge $variant={executionStatusVariant(summary.status)}>
+                        {executionStatusLabels[summary.status]}
+                      </Badge>
+                    </DashboardListItem>
+                  ))}
                 </DashboardList>
               ) : (
-                <EmptyState>No playbooks available.</EmptyState>
+                <EmptyState>No failed, waiting, or running executions found.</EmptyState>
               )}
             </CardContentStack>
           </CardContainer>
 
           <CardContainer>
             <CardHeader>
-              <CardTitle>Platform status</CardTitle>
+              <CardTitle>Platform health</CardTitle>
               <Badge $variant={systemStatusVariant}>{systemStatusLabel}</Badge>
             </CardHeader>
             <CardContentStack>
@@ -353,129 +653,16 @@ export const NgSoarDashboardPage: React.FC = () => {
                   </StatusValue>
                 </StatusRow>
                 <StatusRow>
-                  <StatusLabel>Uptime</StatusLabel>
+                  <StatusLabel>SOARCA uptime</StatusLabel>
                   <StatusValue>
                     {formatDuration(systemStatusQuery.data?.uptime?.milliseconds)}
                   </StatusValue>
                 </StatusRow>
                 <StatusRow>
-                  <StatusLabel>Last execution</StatusLabel>
-                  <StatusValue>
-                    {latestExecution
-                      ? formatDateTime(latestTimestamp(latestExecution), true)
-                      : "No executions"}
-                  </StatusValue>
+                  <StatusLabel>Persisted execution records</StatusLabel>
+                  <StatusValue>{executionSummaries.length}</StatusValue>
                 </StatusRow>
               </StatusRows>
-            </CardContentStack>
-          </CardContainer>
-        </DashboardGrid>
-
-        <DashboardGrid>
-          <CardContainer>
-            <CardHeader>
-              <CardTitle>Recent executions</CardTitle>
-              <Button
-                type="button"
-                $variant={ThemeVariant.Primary}
-                $ghost
-                $size={ThemeSize.Small}
-                onClick={() => navigate(PATHS.MONITORING.BASE)}
-              >
-                Monitoring
-              </Button>
-            </CardHeader>
-            <CardContentStack>
-              {recentExecutions.length ? (
-                <DashboardList>
-                  {recentExecutions.map((summary) => (
-                    <DashboardListItem
-                      key={summary.id}
-                      type="button"
-                      onClick={() =>
-                        navigate(
-                          summary.executionId
-                            ? monitoringDetailPath(summary.executionId)
-                            : PATHS.MONITORING.BASE,
-                        )
-                      }
-                    >
-                      <DashboardListMain>
-                        <DashboardListTitle>
-                          {summary.playbookId}
-                        </DashboardListTitle>
-                        <DashboardListMeta>
-                          {summary.durationMs
-                            ? formatDuration(summary.durationMs)
-                            : formatDateTime(latestTimestamp(summary), true)}
-                        </DashboardListMeta>
-                      </DashboardListMain>
-                      <Badge $variant={executionStatusVariant(summary.status)}>
-                        {executionStatusLabels[summary.status]}
-                      </Badge>
-                    </DashboardListItem>
-                  ))}
-                </DashboardList>
-              ) : (
-                <EmptyState>No persisted executions yet.</EmptyState>
-              )}
-            </CardContentStack>
-          </CardContainer>
-
-          <CardContainer>
-            <CardHeader>
-              <CardTitle>Next actions</CardTitle>
-              <Icon $icon={Clock3} $size={ThemeSize.ExtraLarge} />
-            </CardHeader>
-            <CardContentStack>
-              <DashboardList>
-                <DashboardListItem
-                  type="button"
-                  onClick={() => navigate(PATHS.PLAYBOOKS.NEW)}
-                >
-                  <DashboardListMain>
-                    <DashboardListTitle>Create playbook</DashboardListTitle>
-                    <DashboardListMeta>Start from the Roaster authoring flow</DashboardListMeta>
-                  </DashboardListMain>
-                  <Icon $icon={FilePlusCorner} />
-                </DashboardListItem>
-                <DashboardListItem
-                  type="button"
-                  onClick={() => navigate(PATHS.ROASTER.BASE)}
-                >
-                  <DashboardListMain>
-                    <DashboardListTitle>Open Roaster</DashboardListTitle>
-                    <DashboardListMeta>Author and inspect CACAO content</DashboardListMeta>
-                  </DashboardListMain>
-                  <Icon $icon={RefreshCw} />
-                </DashboardListItem>
-                <DashboardListItem
-                  type="button"
-                  onClick={() => navigate(PATHS.MONITORING.BASE)}
-                >
-                  <DashboardListMain>
-                    <DashboardListTitle>Review executions</DashboardListTitle>
-                    <DashboardListMeta>
-                      Check runs and manual input states
-                    </DashboardListMeta>
-                  </DashboardListMain>
-                  <Icon $icon={Play} />
-                </DashboardListItem>
-                {manualActions ? (
-                  <DashboardListItem
-                    type="button"
-                    onClick={() => navigate(PATHS.MONITORING.BASE)}
-                  >
-                    <DashboardListMain>
-                      <DashboardListTitle>Manual input waiting</DashboardListTitle>
-                      <DashboardListMeta>
-                        {manualActions} execution step needs attention
-                      </DashboardListMeta>
-                    </DashboardListMain>
-                    <Icon $icon={Hand} />
-                  </DashboardListItem>
-                ) : null}
-              </DashboardList>
             </CardContentStack>
           </CardContainer>
         </DashboardGrid>

@@ -72,12 +72,11 @@ export const Overlay = styled.div<{ $isOpen: boolean }>`
 `;
 
 export const BrandLogo = styled.div<{ $isCollapsed?: boolean }>`
-  display: ${({ $isCollapsed }) => ($isCollapsed ? "inline-flex" : "grid")};
-  grid-template-columns: auto minmax(0, 1fr);
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: ${({ theme }) => theme.spacing.md};
-  width: ${({ $isCollapsed }) => ($isCollapsed ? "auto" : "100%")};
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "100%")};
+  min-height: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "3rem")};
 `;
 
 export const SidebarHeaderRow = styled.div<{ $isCollapsed: boolean }>`
@@ -92,14 +91,16 @@ export const SidebarCollapseButton = styled.button<{ $isCollapsed?: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "2rem")};
-  height: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "2rem")};
-  flex: 0 0 ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "2rem")};
+  gap: ${({ $isCollapsed, theme }) => ($isCollapsed ? "0" : theme.spacing.sm)};
+  width: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "100%")};
+  height: ${({ $isCollapsed }) => ($isCollapsed ? "3.25rem" : "2.75rem")};
+  flex: 0 0 auto;
   border: 1px solid ${({ theme }) => theme.colors.border.light};
   border-radius: ${({ theme }) => theme.radius.md};
   background: ${({ theme }) => theme.colors.background.secondary};
   color: ${({ theme }) => theme.colors.text.secondary};
   cursor: pointer;
+  font: ${({ theme }) => theme.typography.bodyMedium.font};
   transition: all ${({ theme }) => theme.transitions.base};
 
   &:hover {
@@ -177,6 +178,20 @@ export const BrandIcon = styled.div<{ $isCollapsed?: boolean }>`
     ${({ theme }) => theme.colors.palette.secondary}
   );
   box-shadow: ${({ theme }) => theme.shadows.sm};
+`;
+
+export const BrandImage = styled.img<{
+  $isCollapsed?: boolean;
+  $isMobile?: boolean;
+}>`
+  display: block;
+  width: ${({ $isCollapsed, $isMobile }) =>
+    $isMobile ? "9rem" : $isCollapsed ? "3.25rem" : "100%"};
+  max-width: ${({ $isCollapsed, $isMobile }) =>
+    $isMobile ? "9rem" : $isCollapsed ? "3.25rem" : "13.5rem"};
+  height: ${({ $isCollapsed, $isMobile }) =>
+    $isMobile ? "2.5rem" : $isCollapsed ? "3.25rem" : "3.75rem"};
+  object-fit: contain;
 `;
 
 export const BrandText = styled.div`

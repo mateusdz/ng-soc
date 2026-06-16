@@ -1,6 +1,5 @@
 import {
   Activity,
-  BookOpen,
   FilePlusCorner,
   Home,
   LayoutDashboard,
@@ -9,14 +8,15 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Settings,
-  ShieldCheck,
   SquarePen,
   X,
 } from "lucide-react";
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router";
 
-import { PATHS, SOARCA_DOC_URL } from "@/utils";
+import { PATHS } from "@/utils";
+import ngSoarIconUrl from "../../../img/NG-SOAR_Icon.png";
+import ngSoarLogoUrl from "../../../img/NG-SOAR_Logo.png";
 
 import {
   Icon,
@@ -30,11 +30,8 @@ import {
 } from "@/components";
 
 import {
-  BrandIcon,
+  BrandImage,
   BrandLogo,
-  BrandSubtitle,
-  BrandText,
-  BrandTitle,
   ContentArea,
   MainContent,
   MainWrapper,
@@ -44,7 +41,6 @@ import {
   NavText,
   Overlay,
   SidebarCollapseButton,
-  SidebarDocsLink,
   SidebarHeaderRow,
   SidebarIconRailButton,
 } from "./MainPage.styles";
@@ -52,19 +48,41 @@ import {
 interface NavRoute {
   path: string;
   label: string;
+  tooltip: string;
   icon: LucideIcon;
 }
 
 const NAV_ROUTES: NavRoute[] = [
-  { path: PATHS.DASHBOARD, label: "Dashboard", icon: Home },
+  {
+    path: PATHS.DASHBOARD,
+    label: "Dashboard",
+    tooltip: "Dashboard: SOC operations overview",
+    icon: Home,
+  },
   {
     path: PATHS.PLAYBOOKS.BASE,
     label: "Playbooks",
+    tooltip: "Playbooks: search, filter, and inspect CACAO playbooks",
     icon: LayoutDashboard,
   },
-  { path: PATHS.ROASTER.BASE, label: "Playbook Editor", icon: SquarePen },
-  { path: PATHS.MONITORING.BASE, label: "Monitoring", icon: Activity },
-  { path: PATHS.SETTINGS, label: "Settings", icon: Settings },
+  {
+    path: PATHS.ROASTER.BASE,
+    label: "Playbook Editor",
+    tooltip: "Playbook Editor: author and import CACAO playbooks",
+    icon: SquarePen,
+  },
+  {
+    path: PATHS.MONITORING.BASE,
+    label: "Monitoring",
+    tooltip: "Monitoring: review executions and manual input",
+    icon: Activity,
+  },
+  {
+    path: PATHS.SETTINGS,
+    label: "Settings",
+    tooltip: "Settings: platform status, API explorer, and appearance",
+    icon: Settings,
+  },
 ];
 
 export const MainPage: React.FC = () => {
@@ -92,49 +110,21 @@ export const MainPage: React.FC = () => {
               <BrandLogo
                 $isCollapsed={!showSidebarLabels}
                 aria-label="NG-SOAR"
-                title="NG-SOAR"
+                title="NG-SOAR: NG-SOC console"
               >
-                <BrandIcon $isCollapsed={!showSidebarLabels}>
-                  <Icon
-                    $icon={ShieldCheck}
-                    $size={showSidebarLabels ? ThemeSize.Large : ThemeSize.ExtraLarge}
-                  />
-                </BrandIcon>
-                {showSidebarLabels ? (
-                  <BrandText>
-                    <BrandTitle>NG-SOAR</BrandTitle>
-                    <BrandSubtitle>NG-SOC Console</BrandSubtitle>
-                  </BrandText>
-                ) : null}
+                <BrandImage
+                  $isCollapsed={!showSidebarLabels}
+                  src={showSidebarLabels ? ngSoarLogoUrl : ngSoarIconUrl}
+                  alt="NG-SOAR"
+                />
               </BrandLogo>
             </SidebarLogoContainer>
-            {showSidebarLabels ? (
-              <SidebarCollapseButton
-                aria-label="Collapse sidebar"
-                title="Collapse sidebar"
-                type="button"
-                onClick={() => setSidebarCollapsed(true)}
-              >
-                <Icon $icon={PanelLeftClose} $size={ThemeSize.Medium} />
-              </SidebarCollapseButton>
-            ) : null}
           </SidebarHeaderRow>
-          {!showSidebarLabels ? (
-            <SidebarCollapseButton
-              $isCollapsed
-              aria-label="Expand sidebar"
-              title="Expand sidebar"
-              type="button"
-              onClick={() => setSidebarCollapsed(false)}
-            >
-              <Icon $icon={PanelLeftOpen} $size={ThemeSize.ExtraLarge} />
-            </SidebarCollapseButton>
-          ) : null}
           <SidebarIconRailButton
             $isCollapsed={!showSidebarLabels}
             onClick={() => handleNavigation(PATHS.PLAYBOOKS.NEW)}
-            aria-label="New playbook"
-            title="New playbook"
+            aria-label="New playbook: create a CACAO playbook"
+            title="New playbook: create a CACAO playbook"
             type="button"
           >
             <Icon
@@ -159,8 +149,8 @@ export const MainPage: React.FC = () => {
                   location.pathname.includes(PATHS.ROASTER.BASE))
               }
               onClick={() => handleNavigation(route.path)}
-              aria-label={route.label}
-              title={route.label}
+              aria-label={route.tooltip}
+              title={route.tooltip}
             >
               <Icon
                 $icon={route.icon}
@@ -171,29 +161,33 @@ export const MainPage: React.FC = () => {
           ))}
         </SidebarNav>
         <SidebarFooter $isCollapsed={!showSidebarLabels}>
-          <SidebarDocsLink
+          <SidebarCollapseButton
             $isCollapsed={!showSidebarLabels}
-            href={SOARCA_DOC_URL}
-            target="_blank"
-            rel="help noopener noreferrer"
-            aria-label="Docs"
-            title="Docs"
+            aria-label={
+              showSidebarLabels
+                ? "Collapse sidebar: show icons only"
+                : "Expand sidebar: show labels"
+            }
+            title={
+              showSidebarLabels
+                ? "Collapse sidebar: show icons only"
+                : "Expand sidebar: show labels"
+            }
+            type="button"
+            onClick={() => setSidebarCollapsed((collapsed) => !collapsed)}
           >
             <Icon
-              $icon={BookOpen}
+              $icon={showSidebarLabels ? PanelLeftClose : PanelLeftOpen}
               $size={showSidebarLabels ? ThemeSize.Large : ThemeSize.ExtraLarge}
             />
-            {showSidebarLabels ? <NavText>Docs</NavText> : null}
-          </SidebarDocsLink>
+            {showSidebarLabels ? <NavText>Collapse sidebar</NavText> : null}
+          </SidebarCollapseButton>
         </SidebarFooter>
       </Sidebar>
       <ContentArea>
         <MobileLauncher>
           <MobileBrand>
-            <BrandIcon>
-              <Icon $icon={ShieldCheck} />
-            </BrandIcon>
-            NG-SOAR
+            <BrandImage $isMobile src={ngSoarLogoUrl} alt="NG-SOAR" />
           </MobileBrand>
           <MobileMenuButton onClick={sidebarOpen ? closeSidebar : openSidebar}>
             {sidebarOpen ? (
