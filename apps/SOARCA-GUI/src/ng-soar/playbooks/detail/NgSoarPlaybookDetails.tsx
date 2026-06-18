@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2026 Cyentific AS.
+ * All Rights Reserved.
+ *
+ * This file is part of the Cyentific CACAO Platform.
+ * Unauthorized copying, modification, distribution, or commercial use is prohibited.
+ */
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 

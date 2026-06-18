@@ -4,6 +4,18 @@ NG-SOAR is an NG-SOC SOAR demonstration platform built around SOARCA-GUI, CACAO 
 
 The main frontend is the NG-SOAR extended SOARCA-GUI application. The former standalone `ng-soar-frontend` shell has been removed after its search, Roaster, dashboard, and execution-summary features were migrated into `apps/SOARCA-GUI`.
 
+## License and Ownership
+
+The combined NG-SOAR platform and Cyentific CACAO Platform extensions are proprietary to Cyentific AS and are distributed under `LICENSE.md`.
+
+Open-source components keep their own licenses:
+
+- CACAO Roaster: Apache License 2.0
+- SOARCA: Apache License 2.0
+- SOARCA GUI: Apache License 2.0
+
+See `COPYRIGHT.md`, `NOTICE.md`, and `ARCHITECTURE_OWNERSHIP.md` for the ownership boundary between open-source components and Cyentific proprietary platform components.
+
 ## Architecture
 
 ```text

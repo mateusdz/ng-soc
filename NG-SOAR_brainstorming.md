@@ -2,6 +2,8 @@ Below is a high-level technical architecture for NG-SOAR that reflects the curre
 
 # NG-SOAR High-Level Technical Architecture
 
+Copyright (c) 2026 Cyentific AS. All Rights Reserved.
+
 ## 1. Architectural Overview
 
 NG-SOAR is a demonstration platform for security orchestration, automation, and response in the NG-SOC context. It integrates CACAO playbook authoring, playbook storage, execution, monitoring, manual runtime interaction, and durable execution summary reporting into a single browser-accessible platform.

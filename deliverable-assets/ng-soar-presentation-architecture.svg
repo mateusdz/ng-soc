@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="1050" viewBox="0 0 1700 1050" role="img" aria-labelledby="title desc">
+  <title id="title">NG-SOAR high-level architecture</title>
+  <desc id="desc">Presentation diagram showing the browser, reverse proxy, UI services, API orchestration services, data services, and external automation targets for the NG-SOAR demo platform.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .vm { fill: #eef5ff; stroke: #7ea2d8; stroke-width: 3; stroke-dasharray: 12 8; }
+      .card { fill: #ffffff; stroke-width: 2; }
+      .entry { stroke: #2563eb; }
+      .ui { stroke: #0f766e; }
+      .api { stroke: #b45309; }
+      .data { stroke: #7c3aed; }
+      .external { stroke: #475569; }
+      .title { font-family: Inter, Arial, sans-serif; font-size: 42px; font-weight: 800; fill: #102033; }
+      .subtitle { font-family: Inter, Arial, sans-serif; font-size: 20px; fill: #475569; }
+      .section { font-family: Inter, Arial, sans-serif; font-size: 22px; font-weight: 800; fill: #1e293b; }
+      .label { font-family: Inter, Arial, sans-serif; font-size: 23px; font-weight: 800; fill: #111827; }
+      .small { font-family: Inter, Arial, sans-serif; font-size: 17px; fill: #475569; }
+      .tiny { font-family: Inter, Arial, sans-serif; font-size: 15px; fill: #64748b; }
+      .route { font-family: Inter, Arial, sans-serif; font-size: 16px; font-weight: 800; fill: #334155; }
+      .arrow { stroke: #334155; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .arrow-soft { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrowSoft); }
+      .arrow-blue { stroke: #2563eb; stroke-width: 3; fill: none; marker-end: url(#arrowBlue); }
+      .arrow-teal { stroke: #0f766e; stroke-width: 3; fill: none; marker-end: url(#arrowTeal); }
+      .arrow-orange { stroke: #b45309; stroke-width: 3; fill: none; marker-end: url(#arrowOrange); }
+      .arrow-purple { stroke: #7c3aed; stroke-width: 3; fill: none; marker-end: url(#arrowPurple); }
+      .pill { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 1.5; }
+      .pill-text { font-family: Inter, Arial, sans-serif; font-size: 15px; font-weight: 700; fill: #334155; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowSoft" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b" />
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb" />
+    </marker>
+    <marker id="arrowTeal" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#0f766e" />
+    </marker>
+    <marker id="arrowOrange" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b45309" />
+    </marker>
+    <marker id="arrowPurple" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1700" height="1050" />
+
+  <text class="title" x="80" y="78">NG-SOAR High-Level Architecture</text>
+  <text class="subtitle" x="82" y="114">Demo deployment: one VM, Docker Compose services, one browser-facing entrypoint</text>
+
+  <rect class="vm" x="330" y="160" width="1030" height="790" rx="28" />
+  <text class="section" x="366" y="205">Remote VM / Docker Compose Network</text>
+  <text class="tiny" x="366" y="231">Only the reverse proxy needs to be exposed publicly for the demo. Direct service ports are bound to localhost.</text>
+
+  <rect class="card entry" x="70" y="420" width="210" height="118" rx="16" />
+  <text class="label" x="105" y="463">SOC Analyst</text>
+  <text class="small" x="105" y="495">Browser</text>
+  <text class="tiny" x="105" y="520">Dashboard, playbooks, editor</text>
+
+  <rect class="card entry" x="380" y="430" width="250" height="140" rx="16" />
+  <text class="label" x="420" y="473">Reverse Proxy</text>
+  <text class="small" x="420" y="505">Nginx</text>
+  <text class="tiny" x="420" y="530">Public entrypoint</text>
+  <text class="tiny" x="420" y="552">NG_SOAR_PORT default :8080</text>
+
+  <path class="arrow-blue" d="M 280 500 L 370 500" />
+  <text class="route" x="300" y="478">HTTP</text>
+
+  <text class="section" x="717" y="292">Presentation and Authoring</text>
+  <rect class="card ui" x="700" y="320" width="300" height="130" rx="16" />
+  <text class="label" x="738" y="362">SOARCA-GUI</text>
+  <text class="small" x="738" y="394">Primary NG-SOAR frontend</text>
+  <text class="tiny" x="738" y="421">Dashboard, playbook catalog,</text>
+  <text class="tiny" x="738" y="442">monitoring, settings</text>
+
+  <rect class="card ui" x="700" y="500" width="300" height="130" rx="16" />
+  <text class="label" x="738" y="542">CACAO Roaster</text>
+  <text class="small" x="738" y="574">Visual playbook editor</text>
+  <text class="tiny" x="738" y="601">Author, import, inspect, and</text>
+  <text class="tiny" x="738" y="622">save CACAO playbooks</text>
+
+  <text class="section" x="1077" y="292">API and Orchestration</text>
+  <rect class="card api" x="1060" y="320" width="270" height="130" rx="16" />
+  <text class="label" x="1096" y="362">NG-SOAR API</text>
+  <text class="small" x="1096" y="394">Platform integration API</text>
+  <text class="tiny" x="1096" y="421">Health, identities, docs,</text>
+  <text class="tiny" x="1096" y="442">execution summaries</text>
+
+  <rect class="card api" x="1060" y="500" width="270" height="130" rx="16" />
+  <text class="label" x="1096" y="542">SOARCA</text>
+  <text class="small" x="1096" y="574">CACAO execution engine</text>
+  <text class="tiny" x="1096" y="601">Validate, run, track,</text>
+  <text class="tiny" x="1096" y="622">and orchestrate playbooks</text>
+
+  <text class="section" x="716" y="723">Persistence and Messaging</text>
+  <rect class="card data" x="700" y="750" width="300" height="120" rx="16" />
+  <text class="label" x="738" y="793">MongoDB</text>
+  <text class="small" x="738" y="825">Playbooks and execution data</text>
+  <text class="tiny" x="738" y="849">SOARCA data plus NG-SOAR summaries</text>
+
+  <rect class="card data" x="1060" y="750" width="270" height="120" rx="16" />
+  <text class="label" x="1096" y="793">Mosquitto MQTT</text>
+  <text class="small" x="1096" y="825">Event and integration broker</text>
+  <text class="tiny" x="1096" y="849">Async custom integrations</text>
+
+  <rect class="card external" x="1410" y="425" width="230" height="150" rx="16" />
+  <text class="label" x="1440" y="468">Security Tools</text>
+  <text class="small" x="1440" y="500">Automation targets</text>
+  <text class="tiny" x="1440" y="528">HTTP(S), SSH, OpenC2,</text>
+  <text class="tiny" x="1440" y="550">MQTT integrations</text>
+
+  <path class="arrow-teal" d="M 630 470 C 660 470 664 385 690 385" />
+  <text class="route" x="648" y="412">/</text>
+  <path class="arrow-teal" d="M 630 520 C 658 520 666 565 690 565" />
+  <text class="route" x="644" y="560">/_roaster</text>
+
+  <path class="arrow-orange" d="M 630 460 L 665 460 L 665 250 L 1195 250 L 1195 310" />
+  <text class="route" x="805" y="242">/api/ng-soar</text>
+  <path class="arrow-orange" d="M 630 540 L 665 540 L 665 660 L 1195 660 L 1195 640" />
+  <text class="route" x="805" y="652">/api/soarca</text>
+
+  <path class="arrow-soft" d="M 1000 385 L 1050 385" />
+  <text class="route" x="1010" y="368">API calls</text>
+  <path class="arrow-soft" d="M 1000 565 L 1050 565" />
+  <text class="route" x="1008" y="548">save/run</text>
+
+  <path class="arrow-orange" d="M 1195 450 L 1195 490" />
+  <text class="route" x="1210" y="476">sync</text>
+
+  <path class="arrow-soft" d="M 1128 450 C 1070 610 960 704 880 740" />
+  <text class="route" x="958" y="660">summaries</text>
+  <path class="arrow-soft" d="M 1120 630 C 1030 700 960 725 920 740" />
+  <path class="arrow-purple" d="M 1195 630 L 1195 740" />
+  <path class="arrow" d="M 1330 565 L 1400 520" />
+  <text class="route" x="1350" y="535">actions</text>
+  <path class="arrow-purple" d="M 1330 810 C 1495 805 1522 640 1522 585" />
+  <text class="route" x="1398" y="784">custom integrations</text>
+
+  <rect class="pill" x="380" y="604" width="250" height="36" rx="18" />
+  <text class="pill-text" x="405" y="628">Single public route surface</text>
+  <rect class="pill" x="700" y="902" width="300" height="36" rx="18" />
+  <text class="pill-text" x="742" y="926">Mongo volume keeps demo state</text>
+  <rect class="pill" x="1060" y="902" width="270" height="36" rx="18" />
+  <text class="pill-text" x="1085" y="926">MQTT supports async actions</text>
+
+  <text class="tiny" x="80" y="982">Runtime flow: Browser -&gt; reverse proxy -&gt; UI/API routes -&gt; SOARCA orchestration -&gt; MongoDB, MQTT, and external security tools.</text>
+</svg>

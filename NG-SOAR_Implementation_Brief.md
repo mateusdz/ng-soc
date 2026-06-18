@@ -1,5 +1,7 @@
 # NG-SOAR Implementation Brief
 
+Copyright (c) 2026 Cyentific AS. All Rights Reserved.
+
 ## Purpose
 
 Implement **NG-SOAR**, the NG-SOC project’s integrated SOAR platform prototype.

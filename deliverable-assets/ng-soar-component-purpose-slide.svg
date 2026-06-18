@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+  <title id="title">NG-SOAR component purposes</title>
+  <desc id="desc">A presentation slide summarizing the main purpose and functionality of each NG-SOAR demo platform component.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f9fc; }
+      .title { font-family: Inter, Arial, sans-serif; font-size: 56px; font-weight: 800; fill: #102033; }
+      .subtitle { font-family: Inter, Arial, sans-serif; font-size: 24px; fill: #475569; }
+      .section { font-family: Inter, Arial, sans-serif; font-size: 20px; font-weight: 800; fill: #334155; letter-spacing: .2px; }
+      .component { font-family: Inter, Arial, sans-serif; font-size: 28px; font-weight: 800; fill: #111827; }
+      .purpose { font-family: Inter, Arial, sans-serif; font-size: 19px; font-weight: 700; fill: #334155; }
+      .body { font-family: Inter, Arial, sans-serif; font-size: 18px; fill: #475569; }
+      .tiny { font-family: Inter, Arial, sans-serif; font-size: 16px; fill: #64748b; }
+      .card { fill: #ffffff; stroke-width: 2.2; }
+      .entry { stroke: #2563eb; }
+      .ui { stroke: #0f766e; }
+      .api { stroke: #b45309; }
+      .data { stroke: #7c3aed; }
+      .ops { stroke: #475569; }
+      .chip { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 1.4; }
+      .chip-text { font-family: Inter, Arial, sans-serif; font-size: 15px; font-weight: 800; fill: #334155; }
+      .rule { stroke: #d7e0ea; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1920" height="1080" />
+  <text class="title" x="88" y="92">NG-SOAR Components: Purpose and Main Functionality</text>
+  <text class="subtitle" x="90" y="130">What each service contributes to the demo platform</text>
+
+  <line class="rule" x1="90" y1="168" x2="1830" y2="168" />
+
+  <text class="section" x="96" y="224">ENTRYPOINT</text>
+  <rect class="card entry" x="90" y="245" width="540" height="190" rx="18" />
+  <text class="component" x="126" y="296">Nginx Reverse Proxy</text>
+  <text class="purpose" x="126" y="331">Single browser-facing access point</text>
+  <text class="body" x="126" y="369">Routes the demo UI and APIs behind one URL.</text>
+  <text class="body" x="126" y="398">Keeps internal services private on the VM network.</text>
+  <rect class="chip" x="126" y="442" width="118" height="34" rx="17" />
+  <text class="chip-text" x="148" y="465">/: GUI</text>
+  <rect class="chip" x="256" y="442" width="148" height="34" rx="17" />
+  <text class="chip-text" x="278" y="465">/_roaster</text>
+  <rect class="chip" x="416" y="442" width="150" height="34" rx="17" />
+  <text class="chip-text" x="438" y="465">/api/*</text>
+
+  <text class="section" x="704" y="224">PRESENTATION AND AUTHORING</text>
+  <rect class="card ui" x="698" y="245" width="540" height="190" rx="18" />
+  <text class="component" x="734" y="296">SOARCA-GUI</text>
+  <text class="purpose" x="734" y="331">Primary NG-SOAR user interface</text>
+  <text class="body" x="734" y="369">Provides dashboard, playbook catalog, execution</text>
+  <text class="body" x="734" y="398">monitoring, settings, and API explorer views.</text>
+  <rect class="chip" x="734" y="442" width="130" height="34" rx="17" />
+  <text class="chip-text" x="755" y="465">Dashboard</text>
+  <rect class="chip" x="876" y="442" width="124" height="34" rx="17" />
+  <text class="chip-text" x="897" y="465">Playbooks</text>
+  <rect class="chip" x="1012" y="442" width="140" height="34" rx="17" />
+  <text class="chip-text" x="1034" y="465">Monitoring</text>
+
+  <rect class="card ui" x="1290" y="245" width="540" height="190" rx="18" />
+  <text class="component" x="1326" y="296">CACAO Roaster</text>
+  <text class="purpose" x="1326" y="331">Visual CACAO playbook authoring surface</text>
+  <text class="body" x="1326" y="369">Lets users create, inspect, import, edit, and save</text>
+  <text class="body" x="1326" y="398">CACAO playbooks before execution.</text>
+  <rect class="chip" x="1326" y="442" width="106" height="34" rx="17" />
+  <text class="chip-text" x="1348" y="465">Editor</text>
+  <rect class="chip" x="1444" y="442" width="126" height="34" rx="17" />
+  <text class="chip-text" x="1467" y="465">Validate</text>
+  <rect class="chip" x="1582" y="442" width="112" height="34" rx="17" />
+  <text class="chip-text" x="1606" y="465">Save</text>
+
+  <text class="section" x="96" y="522">API AND ORCHESTRATION</text>
+  <rect class="card api" x="90" y="543" width="540" height="190" rx="18" />
+  <text class="component" x="126" y="594">NG-SOAR API</text>
+  <text class="purpose" x="126" y="629">Platform glue and demo visibility layer</text>
+  <text class="body" x="126" y="667">Persists execution summaries, resolves identities,</text>
+  <text class="body" x="126" y="696">exposes health checks, and serves OpenAPI docs.</text>
+  <rect class="chip" x="126" y="740" width="104" height="34" rx="17" />
+  <text class="chip-text" x="149" y="763">Health</text>
+  <rect class="chip" x="242" y="740" width="132" height="34" rx="17" />
+  <text class="chip-text" x="264" y="763">Summaries</text>
+  <rect class="chip" x="386" y="740" width="134" height="34" rx="17" />
+  <text class="chip-text" x="408" y="763">OpenAPI</text>
+
+  <rect class="card api" x="698" y="543" width="540" height="190" rx="18" />
+  <text class="component" x="734" y="594">SOARCA</text>
+  <text class="purpose" x="734" y="629">CACAO playbook execution engine</text>
+  <text class="body" x="734" y="667">Validates and runs CACAO playbooks, tracks execution</text>
+  <text class="body" x="734" y="696">state, and coordinates actions against tools.</text>
+  <rect class="chip" x="734" y="740" width="114" height="34" rx="17" />
+  <text class="chip-text" x="756" y="763">Execute</text>
+  <rect class="chip" x="860" y="740" width="118" height="34" rx="17" />
+  <text class="chip-text" x="882" y="763">Status</text>
+  <rect class="chip" x="990" y="740" width="150" height="34" rx="17" />
+  <text class="chip-text" x="1012" y="763">Automation</text>
+
+  <rect class="card ops" x="1290" y="543" width="540" height="190" rx="18" />
+  <text class="component" x="1326" y="594">External Security Tools</text>
+  <text class="purpose" x="1326" y="629">Automation and integration targets</text>
+  <text class="body" x="1326" y="667">Receive actions from SOARCA through supported</text>
+  <text class="body" x="1326" y="696">protocols or custom MQTT-based integrations.</text>
+  <rect class="chip" x="1326" y="740" width="112" height="34" rx="17" />
+  <text class="chip-text" x="1350" y="763">HTTP(S)</text>
+  <rect class="chip" x="1450" y="740" width="86" height="34" rx="17" />
+  <text class="chip-text" x="1474" y="763">SSH</text>
+  <rect class="chip" x="1548" y="740" width="108" height="34" rx="17" />
+  <text class="chip-text" x="1570" y="763">OpenC2</text>
+
+  <text class="section" x="96" y="804">PERSISTENCE AND MESSAGING</text>
+  <rect class="card data" x="90" y="826" width="540" height="170" rx="18" />
+  <text class="component" x="126" y="877">MongoDB</text>
+  <text class="purpose" x="126" y="912">Durable state for demo workflows</text>
+  <text class="body" x="126" y="950">Stores playbooks, SOARCA execution data,</text>
+  <text class="body" x="126" y="979">and NG-SOAR execution summaries.</text>
+
+  <rect class="card data" x="698" y="826" width="540" height="170" rx="18" />
+  <text class="component" x="734" y="877">Mosquitto MQTT</text>
+  <text class="purpose" x="734" y="912">Lightweight event broker for integrations</text>
+  <text class="body" x="734" y="950">Supports SOARCA messaging and asynchronous</text>
+  <text class="body" x="734" y="979">custom integration patterns.</text>
+
+  <rect class="card ops" x="1290" y="826" width="540" height="170" rx="18" />
+  <text class="component" x="1326" y="877">Docker Compose VM</text>
+  <text class="purpose" x="1326" y="912">Portable demo deployment unit</text>
+  <text class="body" x="1326" y="950">Runs all services together on one remote VM</text>
+  <text class="body" x="1326" y="979">with one exposed browser-facing entrypoint.</text>
+
+  <text class="tiny" x="90" y="1042">Positioning: SOARCA executes the security playbooks; NG-SOAR adds the demo user experience, persisted summaries, health visibility, and integrated authoring flow.</text>
+</svg>

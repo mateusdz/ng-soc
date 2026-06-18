@@ -1,3 +1,9 @@
+# Copyright (c) 2026 Cyentific AS.
+# All Rights Reserved.
+#
+# This file is part of the Cyentific CACAO Platform.
+# Unauthorized copying, modification, distribution, or commercial use is prohibited.
+
 services:
   reverse-proxy:
     image: nginx:1.29-alpine
@@ -32,6 +38,9 @@ services:
   cacao-roaster:
     build:
       context: ./apps/CACAO-Roaster
+      args:
+        SOARCA_END_POINT: ${ROASTER_SOARCA_API_BASE:-/api/soarca}
+        SOARCA_PLAYBOOK_API_BASE: ${ROASTER_SOARCA_API_BASE:-/api/soarca}
     environment:
       SOARCA_URL: ${ROASTER_SOARCA_API_BASE:-/api/soarca}
       SOARCA_END_POINT: ${ROASTER_SOARCA_API_BASE:-/api/soarca}
